@@ -15,8 +15,8 @@ class VoiceAssistantManager(private val context: Context) {
         private const val TAG = "VoiceAssistantManager"
         
         // 是否使用模拟模式（没有百度SDK时设为true）
-        // TODO: 集成百度SDK后改为false
-        const val USE_MOCK_MODE = true
+        // TODO: 百度SDK认证通过后改为false
+        const val USE_MOCK_MODE = true  // 暂时使用Mock模式，等百度平台配置生效后改回false
     }
     
     // 模拟模式管理器
