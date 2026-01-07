@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 基础颜色 -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- 车载深色主题 -->
+    <color name="background_dark">#FF1A1A2E</color>
+    <color name="primary_dark">#FF16213E</color>
+    <color name="card_background">#FF0F3460</color>
+    <color name="chip_background">#FF1A1A2E</color>
+    
+    <!-- 文字颜色 -->
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#FFB0B0B0</color>
+    <color name="text_hint">#FF6B6B6B</color>
+    
+    <!-- 强调色 -->
+    <color name="accent_blue">#FF00B4D8</color>
+    <color name="accent_green">#FF00D26A</color>
+    <color name="accent_red">#FFFF4757</color>
+    <color name="accent_orange">#FFFFA502</color>
+    <color name="accent_purple">#FF9B59B6</color>
+    
+    <!-- 状态颜色 -->
+    <color name="status_on">#FF00D26A</color>
+    <color name="status_off">#FF6B6B6B</color>
+    <color name="status_warning">#FFFFA502</color>
+    <color name="status_error">#FFFF4757</color>
+</resources>
