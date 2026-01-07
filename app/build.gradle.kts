@@ -77,6 +77,8 @@ dependencies {
     // 下载地址：https://ai.baidu.com/sdk#asr
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
