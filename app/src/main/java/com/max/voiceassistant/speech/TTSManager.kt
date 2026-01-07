@@ -167,16 +167,16 @@ class TTSManager(private val context: Context) {
      */
     private fun setupParams() {
         // 发音人（使用 PARAM_ONLINE_SPEAKER）
-        synthesizer?.setParam(SpeechSynthesizer.PARAM_ONLINE_SPEAKER, SpeechConfig.TTS.SPEAKER)
+        synthesizer?.setParam(SpeechSynthesizer.PARAM_ONLINE_SPEAKER, SpeechConfig.TTS.SPEAKER.toString())
         
         // 语速
-        synthesizer?.setParam(SpeechSynthesizer.PARAM_SPEED, SpeechConfig.TTS.SPEED)
+        synthesizer?.setParam(SpeechSynthesizer.PARAM_SPEED, SpeechConfig.TTS.SPEED.toString())
         
         // 音调
-        synthesizer?.setParam(SpeechSynthesizer.PARAM_PITCH, SpeechConfig.TTS.PITCH)
+        synthesizer?.setParam(SpeechSynthesizer.PARAM_PITCH, SpeechConfig.TTS.PITCH.toString())
         
         // 音量
-        synthesizer?.setParam(SpeechSynthesizer.PARAM_VOLUME, SpeechConfig.TTS.VOLUME)
+        synthesizer?.setParam(SpeechSynthesizer.PARAM_VOLUME, SpeechConfig.TTS.VOLUME.toString())
     }
     
     /**
