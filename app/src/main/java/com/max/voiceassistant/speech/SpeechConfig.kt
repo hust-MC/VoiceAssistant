@@ -12,9 +12,9 @@ object SpeechConfig {
 
     // ==================== 百度 API 认证配置 ====================
     // TODO: 请替换为你自己的百度 API 凭证
-    const val APP_ID = "your_app_id"
-    const val API_KEY = "your_api_key"
-    const val SECRET_KEY = "your_secret_key"
+    const val APP_ID = "121320025"
+    const val API_KEY = "XCsfNuo7wKSRBeGe17EbxfXp"
+    const val SECRET_KEY = "gqZzxOAC6mT7CEYQKTt9tjx9LUthrjB4"
 
     // ==================== ASR 语音识别配置 ====================
     object ASR {
