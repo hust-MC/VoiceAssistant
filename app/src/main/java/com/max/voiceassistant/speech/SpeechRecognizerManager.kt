@@ -252,6 +252,18 @@ class SpeechRecognizerManager(private val context: Context) {
         params[SpeechConstant.APP_KEY] = SpeechConfig.API_KEY
         params[SpeechConstant.SECRET] = SpeechConfig.SECRET_KEY
         
+        // PID：识别模型（必须设置！）
+        // 1537 = 普通话输入法模型（有标点）
+        // 15372 = 普通话输入法模型（无标点）
+        // 1737 = 英语
+        // 1637 = 粤语
+        params[SpeechConstant.PID] = SpeechConfig.ASR.LANGUAGE
+        
+        // VAD 模式：使用手动模式（touch），不依赖本地 VAD 模型
+        // VAD_TOUCH = 手动停止模式，需要调用 stop() 结束识别
+        // VAD_DNN = 自动端点检测，需要本地模型文件
+        params[SpeechConstant.VAD] = SpeechConstant.VAD_TOUCH
+        
         // 是否回调音量
         params[SpeechConstant.ACCEPT_AUDIO_VOLUME] = true
         
