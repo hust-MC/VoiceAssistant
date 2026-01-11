@@ -2,6 +2,7 @@ package com.max.voiceassistant.speech
 
 import android.content.Context
 import android.util.Log
+import com.max.voiceassistant.data.AppSettings
 
 /**
  * 语音助手管理器
@@ -13,11 +14,14 @@ class VoiceAssistantManager(private val context: Context) {
     
     companion object {
         private const val TAG = "VoiceAssistantManager"
-        
-        // 是否使用模拟模式（没有百度SDK时设为true）
-        // TODO: 百度SDK认证通过后改为false
-        const val USE_MOCK_MODE = true  // 暂时使用Mock模式，等百度平台配置生效后改回false
     }
+    
+    // 设置管理
+    private val appSettings = AppSettings(context)
+    
+    // 是否使用模拟模式（从设置读取）
+    private val useMockMode: Boolean
+        get() = appSettings.useMockMode
     
     // 模拟模式管理器
     private var mockManager: MockSpeechManager? = null
@@ -64,7 +68,7 @@ class VoiceAssistantManager(private val context: Context) {
             return true
         }
         
-        return if (USE_MOCK_MODE || !SpeechConfig.isConfigValid()) {
+        return if (useMockMode || !SpeechConfig.isConfigValid()) {
             initMockMode()
         } else {
             initRealMode()
@@ -234,7 +238,7 @@ class VoiceAssistantManager(private val context: Context) {
             return
         }
         
-        if (USE_MOCK_MODE || mockManager != null) {
+        if (mockManager != null) {
             mockManager?.startListening()
         } else {
             speechRecognizer?.startListening()
@@ -245,7 +249,7 @@ class VoiceAssistantManager(private val context: Context) {
      * 停止语音识别
      */
     fun stopListening() {
-        if (USE_MOCK_MODE || mockManager != null) {
+        if (mockManager != null) {
             mockManager?.stopListening()
         } else {
             speechRecognizer?.stopListening()
@@ -256,7 +260,7 @@ class VoiceAssistantManager(private val context: Context) {
      * 取消语音识别
      */
     fun cancelListening() {
-        if (USE_MOCK_MODE || mockManager != null) {
+        if (mockManager != null) {
             mockManager?.cancelListening()
         } else {
             speechRecognizer?.cancel()
@@ -279,7 +283,7 @@ class VoiceAssistantManager(private val context: Context) {
         
         Log.d(TAG, "Speak: $text")
         
-        if (USE_MOCK_MODE || mockManager != null) {
+        if (mockManager != null) {
             mockManager?.speak(text)
         } else {
             ttsManager?.speak(text)
@@ -290,7 +294,7 @@ class VoiceAssistantManager(private val context: Context) {
      * 停止TTS播放
      */
     fun stopSpeaking() {
-        if (USE_MOCK_MODE || mockManager != null) {
+        if (mockManager != null) {
             mockManager?.stopSpeaking()
         } else {
             ttsManager?.stop()
@@ -301,7 +305,7 @@ class VoiceAssistantManager(private val context: Context) {
      * 是否正在识别
      */
     fun isListening(): Boolean {
-        return if (USE_MOCK_MODE || mockManager != null) {
+        return if (mockManager != null) {
             mockManager?.isListening() ?: false
         } else {
             speechRecognizer?.isListening() ?: false
@@ -318,7 +322,7 @@ class VoiceAssistantManager(private val context: Context) {
     /**
      * 是否是模拟模式
      */
-    fun isMockMode(): Boolean = USE_MOCK_MODE || mockManager != null
+    fun isMockMode(): Boolean = mockManager != null
     
     /**
      * 释放资源

@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.max.voiceassistant.R
+import com.max.voiceassistant.data.AppSettings
 import com.max.voiceassistant.data.DialogRepository
 import com.max.voiceassistant.data.VehicleStateRepository
 import com.max.voiceassistant.databinding.ActivityMainBinding
@@ -31,6 +32,9 @@ class MainActivity : AppCompatActivity() {
     // Repository实例
     private val vehicleStateRepository by lazy { VehicleStateRepository() }
     private val dialogRepository by lazy { DialogRepository() }
+    
+    // 设置管理
+    private val appSettings by lazy { AppSettings(applicationContext) }
 
     private val viewModel: MainViewModel by viewModels {
         MainViewModel.Factory(
@@ -270,22 +274,45 @@ class MainActivity : AppCompatActivity() {
      * 显示设置对话框
      */
     private fun showSettingsDialog() {
+        val currentMode = if (appSettings.useMockMode) "模拟模式" else "真实模式"
         val items = arrayOf(
-            "清空对话历史", "关于"
+            "语音模式：$currentMode",
+            "清空对话历史",
+            "关于"
         )
 
         AlertDialog.Builder(this).setTitle("设置").setItems(items) { _, which ->
                 when (which) {
-                    0 -> {
+                    0 -> showModeSelectionDialog()
+                    1 -> {
                         viewModel.clearDialog()
                         Toast.makeText(this, "对话历史已清空", Toast.LENGTH_SHORT).show()
                     }
-
-                    1 -> {
-                        showAboutDialog()
-                    }
+                    2 -> showAboutDialog()
                 }
             }.show()
+    }
+    
+    /**
+     * 显示模式选择对话框
+     */
+    private fun showModeSelectionDialog() {
+        val modes = arrayOf("模拟模式（Mock）", "真实模式（百度SDK）")
+        val currentIndex = if (appSettings.useMockMode) 0 else 1
+        
+        AlertDialog.Builder(this)
+            .setTitle("选择语音模式")
+            .setSingleChoiceItems(modes, currentIndex) { dialog, which ->
+                val newMockMode = (which == 0)
+                if (newMockMode != appSettings.useMockMode) {
+                    appSettings.useMockMode = newMockMode
+                    val modeName = if (newMockMode) "模拟模式" else "真实模式"
+                    Toast.makeText(this, "已切换到$modeName，重启应用后生效", Toast.LENGTH_LONG).show()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("取消", null)
+            .show()
     }
 
     /**
