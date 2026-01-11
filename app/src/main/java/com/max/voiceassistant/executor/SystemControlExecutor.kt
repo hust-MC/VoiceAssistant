@@ -76,8 +76,11 @@ class SystemControlExecutor(private val context: Context) {
     private fun executeBrightnessUp(): CommandResult {
         return try {
             if (!canWriteSettings()) {
-                return CommandResult.Error("请先在设置中授权本应用修改系统设置")
+                return requestWriteSettingsPermission()
             }
+            
+            // 先关闭自动亮度
+            disableAutoBrightness()
             
             val currentBrightness = Settings.System.getInt(
                 contentResolver,
@@ -90,11 +93,7 @@ class SystemControlExecutor(private val context: Context) {
             }
             
             val newBrightness = (currentBrightness + 25).coerceAtMost(255)
-            Settings.System.putInt(
-                contentResolver,
-                Settings.System.SCREEN_BRIGHTNESS,
-                newBrightness
-            )
+            setBrightness(newBrightness)
             
             val percent = (newBrightness * 100 / 255)
             CommandResult.Success("亮度已调高，当前${percent}%")
@@ -106,8 +105,11 @@ class SystemControlExecutor(private val context: Context) {
     private fun executeBrightnessDown(): CommandResult {
         return try {
             if (!canWriteSettings()) {
-                return CommandResult.Error("请先在设置中授权本应用修改系统设置")
+                return requestWriteSettingsPermission()
             }
+            
+            // 先关闭自动亮度
+            disableAutoBrightness()
             
             val currentBrightness = Settings.System.getInt(
                 contentResolver,
@@ -120,11 +122,7 @@ class SystemControlExecutor(private val context: Context) {
             }
             
             val newBrightness = (currentBrightness - 25).coerceAtLeast(10)
-            Settings.System.putInt(
-                contentResolver,
-                Settings.System.SCREEN_BRIGHTNESS,
-                newBrightness
-            )
+            setBrightness(newBrightness)
             
             val percent = (newBrightness * 100 / 255)
             CommandResult.Success("亮度已调低，当前${percent}%")
@@ -133,8 +131,57 @@ class SystemControlExecutor(private val context: Context) {
         }
     }
     
+    /**
+     * 关闭自动亮度模式
+     */
+    private fun disableAutoBrightness() {
+        try {
+            Settings.System.putInt(
+                contentResolver,
+                Settings.System.SCREEN_BRIGHTNESS_MODE,
+                Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+            )
+        } catch (e: Exception) {
+            // 忽略错误
+        }
+    }
+    
+    /**
+     * 设置屏幕亮度
+     * @param brightness 亮度值 (0-255)
+     */
+    private fun setBrightness(brightness: Int) {
+        // 1. 保存到系统设置
+        Settings.System.putInt(
+            contentResolver,
+            Settings.System.SCREEN_BRIGHTNESS,
+            brightness
+        )
+        
+        // 2. 发送广播通知系统亮度已更改（部分设备需要）
+        val intent = Intent("android.intent.action.SCREEN_BRIGHTNESS_CHANGED")
+        context.sendBroadcast(intent)
+    }
+    
     private fun canWriteSettings(): Boolean {
         return Settings.System.canWrite(context)
+    }
+    
+    /**
+     * 请求修改系统设置权限
+     * 跳转到专门的授权页面
+     */
+    private fun requestWriteSettingsPermission(): CommandResult {
+        return try {
+            val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
+                data = android.net.Uri.parse("package:${context.packageName}")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+            CommandResult.Success("请在弹出的页面中授权，然后再试一次")
+        } catch (e: Exception) {
+            CommandResult.Error("无法打开授权页面：${e.message}")
+        }
     }
     
     // ========== WiFi控制 ==========

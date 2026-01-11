@@ -13,7 +13,7 @@
     <color name="background_dark">#FF1A1A2E</color>
     <color name="primary_dark">#FF16213E</color>
     <color name="card_background">#FF0F3460</color>
-    <color name="chip_background">#FF1A1A2E</color>
+    <color name="chip_background">#FF2A3F5F</color>
     
     <!-- 文字颜色 -->
     <color name="text_primary">#FFFFFFFF</color>
