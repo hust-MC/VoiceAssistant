@@ -428,6 +428,14 @@ class MainActivity : AppCompatActivity() {
                     binding.iconFeedback.setImageResource(R.drawable.ic_check_circle)
                     binding.tvFeedback.text = result.message
                 }
+
+                is CommandResult.NeedPermission -> {
+                    binding.feedbackCard.setCardBackgroundColor(getColor(R.color.accent_orange))
+                    binding.iconFeedback.setImageResource(R.drawable.ic_check_circle)
+                    binding.tvFeedback.text = result.message
+                    // 请求权限
+                    requestPermissionLauncher.launch(arrayOf(result.permission))
+                }
             }
         } else {
             binding.feedbackCard.visibility = View.GONE

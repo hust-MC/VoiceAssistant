@@ -1,11 +1,16 @@
 package com.max.voiceassistant.executor
 
+import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.provider.Settings
+import androidx.core.content.ContextCompat
 import com.max.voiceassistant.model.Command
 import com.max.voiceassistant.model.CommandResult
 import com.max.voiceassistant.model.CommandType
@@ -21,7 +26,27 @@ class SystemControlExecutor(private val context: Context) {
     }
     
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
-        BluetoothAdapter.getDefaultAdapter()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+            bluetoothManager?.adapter
+        } else {
+            @Suppress("DEPRECATION")
+            BluetoothAdapter.getDefaultAdapter()
+        }
+    }
+    
+    /**
+     * 检查是否有蓝牙连接权限 (Android 12+)
+     */
+    private fun hasBluetoothPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            ContextCompat.checkSelfPermission(
+                context, 
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true // Android 12以下不需要运行时权限
+        }
     }
     
     private val contentResolver: ContentResolver
@@ -192,6 +217,18 @@ class SystemControlExecutor(private val context: Context) {
     
     private fun executeBluetoothOn(): CommandResult {
         return try {
+            // Android 12+ 需要检查 BLUETOOTH_CONNECT 权限
+            if (!hasBluetoothPermission()) {
+                return CommandResult.NeedPermission(
+                    "需要蓝牙权限才能控制蓝牙",
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    } else {
+                        Manifest.permission.BLUETOOTH
+                    }
+                )
+            }
+            
             val bluetooth = bluetoothAdapter ?: return CommandResult.Error("设备不支持蓝牙")
             
             if (bluetooth.isEnabled) {
@@ -203,6 +240,15 @@ class SystemControlExecutor(private val context: Context) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
             CommandResult.Success("请在弹出的对话框中确认打开蓝牙")
+        } catch (e: SecurityException) {
+            CommandResult.NeedPermission(
+                "需要蓝牙权限",
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Manifest.permission.BLUETOOTH_CONNECT
+                } else {
+                    Manifest.permission.BLUETOOTH
+                }
+            )
         } catch (e: Exception) {
             CommandResult.Error("打开蓝牙失败：${e.message}")
         }
@@ -211,26 +257,58 @@ class SystemControlExecutor(private val context: Context) {
     @Suppress("DEPRECATION")
     private fun executeBluetoothOff(): CommandResult {
         return try {
+            if (!hasBluetoothPermission()) {
+                return CommandResult.NeedPermission(
+                    "需要蓝牙权限才能控制蓝牙",
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    } else {
+                        Manifest.permission.BLUETOOTH
+                    }
+                )
+            }
+            
             val bluetooth = bluetoothAdapter ?: return CommandResult.Error("设备不支持蓝牙")
             
             if (!bluetooth.isEnabled) {
                 return CommandResult.Success("蓝牙已经是关闭状态")
             }
             
+            // Android 13+ 普通App无法直接关闭蓝牙，引导到设置
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+                return CommandResult.Success("请在设置中关闭蓝牙")
+            }
+            
             // 尝试直接关闭（可能需要BLUETOOTH_ADMIN权限）
             bluetooth.disable()
             CommandResult.Success("蓝牙已关闭")
-        } catch (e: Exception) {
+        } catch (e: SecurityException) {
             // 如果直接关闭失败，引导用户到设置
             val intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
             CommandResult.Success("请在设置中关闭蓝牙")
+        } catch (e: Exception) {
+            CommandResult.Error("关闭蓝牙失败：${e.message}")
         }
     }
     
     private fun executeBluetoothStatus(): CommandResult {
         return try {
+            if (!hasBluetoothPermission()) {
+                return CommandResult.NeedPermission(
+                    "需要蓝牙权限才能查询状态",
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    } else {
+                        Manifest.permission.BLUETOOTH
+                    }
+                )
+            }
+            
             val bluetooth = bluetoothAdapter ?: return CommandResult.Error("设备不支持蓝牙")
             
             if (bluetooth.isEnabled) {
@@ -238,6 +316,15 @@ class SystemControlExecutor(private val context: Context) {
             } else {
                 CommandResult.Success("蓝牙已关闭")
             }
+        } catch (e: SecurityException) {
+            CommandResult.NeedPermission(
+                "需要蓝牙权限",
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Manifest.permission.BLUETOOTH_CONNECT
+                } else {
+                    Manifest.permission.BLUETOOTH
+                }
+            )
         } catch (e: Exception) {
             CommandResult.Error("获取蓝牙状态失败：${e.message}")
         }

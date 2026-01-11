@@ -10,29 +10,29 @@ import java.util.*
 
 /**
  * 模拟语音管理器
- * 
+ *
  * 在没有百度SDK的情况下，使用Android系统自带的语音功能进行模拟
  * 用于开发和测试阶段
  */
 class MockSpeechManager(private val context: Context) {
-    
+
     companion object {
         private const val TAG = "MockSpeechManager"
     }
-    
+
     private val handler = Handler(Looper.getMainLooper())
-    
+
     // 系统TTS（用于模拟语音合成）
     private var systemTTS: TextToSpeech? = null
     private var isTTSReady = false
-    
+
     // 模拟识别状态
     private var isListening = false
-    
+
     // 回调
     private var recognitionListener: SpeechRecognizerManager.RecognitionListener? = null
     private var ttsListener: TTSManager.TTSListener? = null
-    
+
     /**
      * 初始化
      */
@@ -41,7 +41,7 @@ class MockSpeechManager(private val context: Context) {
         systemTTS = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 val result = systemTTS?.setLanguage(Locale.CHINESE)
-                isTTSReady = result != TextToSpeech.LANG_MISSING_DATA 
+                isTTSReady = result != TextToSpeech.LANG_MISSING_DATA
                         && result != TextToSpeech.LANG_NOT_SUPPORTED
                 Log.d(TAG, "System TTS initialized, ready: $isTTSReady")
             } else {
@@ -49,24 +49,24 @@ class MockSpeechManager(private val context: Context) {
             }
         }
     }
-    
+
     /**
      * 设置识别监听器
      */
     fun setRecognitionListener(listener: SpeechRecognizerManager.RecognitionListener) {
         this.recognitionListener = listener
     }
-    
+
     /**
      * 设置TTS监听器
      */
     fun setTTSListener(listener: TTSManager.TTSListener) {
         this.ttsListener = listener
     }
-    
+
     /**
      * 开始模拟语音识别
-     * 
+     *
      * 模拟流程：
      * 1. 触发onReady
      * 2. 触发onBegin
@@ -79,25 +79,25 @@ class MockSpeechManager(private val context: Context) {
             Log.w(TAG, "Already listening")
             return
         }
-        
+
         isListening = true
         Log.d(TAG, "Mock: Start listening")
-        
+
         // 模拟识别流程
         handler.post {
             recognitionListener?.onReady()
         }
-        
+
         handler.postDelayed({
             if (isListening) {
                 recognitionListener?.onBegin()
             }
         }, 200)
-        
+
         // 模拟音量变化
         simulateVolumeChanges()
     }
-    
+
     /**
      * 模拟音量变化
      */
@@ -114,7 +114,7 @@ class MockSpeechManager(private val context: Context) {
         }
         handler.postDelayed(runnable, 300)
     }
-    
+
     /**
      * 停止模拟识别并返回结果
      */
@@ -122,10 +122,10 @@ class MockSpeechManager(private val context: Context) {
         if (!isListening) {
             return ""
         }
-        
+
         isListening = false
         Log.d(TAG, "Mock: Stop listening")
-        
+
         // 返回模拟结果
         val mockResults = listOf(
             "播放音乐",
@@ -137,16 +137,16 @@ class MockSpeechManager(private val context: Context) {
             "音量调大"
         )
         val result = mockResults.random()
-        
+
         handler.post {
             recognitionListener?.onPartialResult(result)
             recognitionListener?.onResult(result)
             recognitionListener?.onEnd()
         }
-        
+
         return result
     }
-    
+
     /**
      * 模拟输入指定文本（用于测试）
      */
@@ -164,7 +164,7 @@ class MockSpeechManager(private val context: Context) {
             recognitionListener?.onEnd()
         }, 500)
     }
-    
+
     /**
      * 取消识别
      */
@@ -173,13 +173,13 @@ class MockSpeechManager(private val context: Context) {
         handler.removeCallbacksAndMessages(null)
         Log.d(TAG, "Mock: Cancel listening")
     }
-    
+
     /**
      * 语音合成（使用系统TTS）
      */
     fun speak(text: String, utteranceId: String = System.currentTimeMillis().toString()) {
         Log.d(TAG, "Mock TTS: $text")
-        
+
         if (!isTTSReady) {
             Log.w(TAG, "System TTS not ready, skip speaking")
             // 即使TTS不可用，也模拟回调
@@ -191,7 +191,7 @@ class MockSpeechManager(private val context: Context) {
             }, 1000)
             return
         }
-        
+
         // 设置监听器
         systemTTS?.setOnUtteranceProgressListener(object : android.speech.tts.UtteranceProgressListener() {
             override fun onStart(id: String?) {
@@ -199,37 +199,37 @@ class MockSpeechManager(private val context: Context) {
                     ttsListener?.onSpeechStart(utteranceId)
                 }
             }
-            
+
             override fun onDone(id: String?) {
                 handler.post {
                     ttsListener?.onSpeechFinish(utteranceId)
                 }
             }
-            
+
             override fun onError(id: String?) {
                 handler.post {
                     ttsListener?.onError(utteranceId, "TTS播放错误")
                 }
             }
         })
-        
+
         // 播放
         val params = android.os.Bundle()
         systemTTS?.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
     }
-    
+
     /**
      * 停止TTS
      */
     fun stopSpeaking() {
         systemTTS?.stop()
     }
-    
+
     /**
      * 是否正在识别
      */
     fun isListening(): Boolean = isListening
-    
+
     /**
      * 释放资源
      */
@@ -242,6 +242,8 @@ class MockSpeechManager(private val context: Context) {
         Log.d(TAG, "Mock speech manager released")
     }
 }
+
+
 
 
 

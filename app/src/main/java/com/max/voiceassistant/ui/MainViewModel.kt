@@ -217,6 +217,7 @@ class MainViewModel(
             val responseText = when (result) {
                 is CommandResult.Success -> result.message
                 is CommandResult.Error -> result.message
+                is CommandResult.NeedPermission -> result.message
             }
             
             // 6. 添加助手回复

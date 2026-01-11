@@ -112,4 +112,5 @@ data class Command(
 sealed class CommandResult {
     data class Success(val message: String) : CommandResult()
     data class Error(val message: String) : CommandResult()
+    data class NeedPermission(val message: String, val permission: String) : CommandResult()
 }
