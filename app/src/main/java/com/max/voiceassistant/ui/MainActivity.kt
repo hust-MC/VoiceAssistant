@@ -120,10 +120,12 @@ class MainActivity : AppCompatActivity() {
         // 观察对话历史
         lifecycleScope.launch {
             viewModel.dialogHistory.collectLatest { dialogs ->
-                dialogAdapter.submitList(dialogs)
-                // 滚动到底部
-                if (dialogs.isNotEmpty()) {
-                    binding.dialogRecyclerView.scrollToPosition(dialogs.size - 1)
+                // 使用带回调的 submitList，确保列表更新完成后再滚动
+                dialogAdapter.submitList(dialogs.toList()) {
+                    // 滚动到底部
+                    if (dialogs.isNotEmpty()) {
+                        binding.dialogRecyclerView.smoothScrollToPosition(dialogs.size - 1)
+                    }
                 }
             }
         }
