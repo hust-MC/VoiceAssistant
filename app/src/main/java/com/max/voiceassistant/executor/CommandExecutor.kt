@@ -9,8 +9,8 @@ import com.max.voiceassistant.model.*
  * 负责分发和执行各类命令
  */
 class CommandExecutor(
-    private val context: Context,
-    private val vehicleStateRepository: VehicleStateRepository
+    context: Context,
+    vehicleStateRepository: VehicleStateRepository
 ) {
     // 各模块执行器
     private val mediaExecutor = MediaControlExecutor(context)

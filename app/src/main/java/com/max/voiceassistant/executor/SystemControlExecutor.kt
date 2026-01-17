@@ -26,13 +26,8 @@ class SystemControlExecutor(private val context: Context) {
     }
     
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
-            bluetoothManager?.adapter
-        } else {
-            @Suppress("DEPRECATION")
-            BluetoothAdapter.getDefaultAdapter()
-        }
+        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+        bluetoothManager?.adapter
     }
     
     /**
@@ -201,7 +196,7 @@ class SystemControlExecutor(private val context: Context) {
             }
             
             // Android Q以上需要引导用户到设置
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val intent = Intent(Settings.Panel.ACTION_WIFI)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
@@ -226,7 +221,7 @@ class SystemControlExecutor(private val context: Context) {
             }
             
             // Android Q以上需要引导用户到设置
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val intent = Intent(Settings.Panel.ACTION_WIFI)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)

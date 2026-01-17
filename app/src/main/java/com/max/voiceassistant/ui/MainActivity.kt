@@ -343,13 +343,26 @@ class MainActivity : AppCompatActivity() {
     // ========== UI更新方法 ==========
 
     private fun updateACUI(acState: ACState) {
-        // 更新空调图标颜色
-        val iconColor = if (acState.isOn) {
-            getColor(R.color.accent_blue)
+        // 根据空调模式更新图标和颜色
+        if (acState.isOn) {
+            when (acState.mode) {
+                ACMode.HEAT -> {
+                    binding.iconAC.setImageResource(R.drawable.ic_heat)
+                    binding.iconAC.setColorFilter(getColor(R.color.accent_orange))
+                }
+                ACMode.COOL -> {
+                    binding.iconAC.setImageResource(R.drawable.ic_ac)
+                    binding.iconAC.setColorFilter(getColor(R.color.accent_blue))
+                }
+                ACMode.AUTO -> {
+                    binding.iconAC.setImageResource(R.drawable.ic_ac)
+                    binding.iconAC.setColorFilter(getColor(R.color.accent_green))
+                }
+            }
         } else {
-            getColor(R.color.text_secondary)
+            binding.iconAC.setImageResource(R.drawable.ic_ac)
+            binding.iconAC.setColorFilter(getColor(R.color.text_secondary))
         }
-        binding.iconAC.setColorFilter(iconColor)
 
         // 更新空调状态文字
         binding.tvACStatus.text = if (acState.isOn) {
