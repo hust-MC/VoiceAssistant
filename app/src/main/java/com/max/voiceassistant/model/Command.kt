@@ -1,11 +1,12 @@
 package com.max.voiceassistant.model
 
 /**
- * 命令类型
+ * 命令类型枚举。
+ *
+ * 覆盖：媒体播放/音量、系统亮度/WiFi/蓝牙/设置、车辆空调/座椅/车窗/灯光/车门/引擎、信息查询。
  */
 enum class CommandType {
-    // ========== 媒体控制 ==========
-    MEDIA_PLAY,         // 播放
+    MEDIA_PLAY,
     MEDIA_PAUSE,        // 暂停
     MEDIA_STOP,         // 停止
     MEDIA_NEXT,         // 下一首
@@ -87,18 +88,22 @@ enum class CommandType {
 }
 
 /**
- * 命令类别
+ * 命令所属大类，用于 [CommandExecutor] 分发。
  */
 enum class CommandCategory {
-    MEDIA,      // 媒体
-    SYSTEM,     // 系统
-    VEHICLE,    // 车辆
-    QUERY,      // 查询
-    UNKNOWN     // 未知
+    MEDIA,
+    SYSTEM,
+    VEHICLE,
+    QUERY,
+    UNKNOWN
 }
 
 /**
- * 命令数据类
+ * 命令数据：类型、类别与可选参数（如温度、城市、表达式）。
+ *
+ * @param type 具体命令类型
+ * @param category 所属大类
+ * @param params 可选参数键值对
  */
 data class Command(
     val type: CommandType,
@@ -107,7 +112,7 @@ data class Command(
 )
 
 /**
- * 命令执行结果
+ * 命令执行结果：成功文案、错误文案或需申请权限（带 permission）。
  */
 sealed class CommandResult {
     data class Success(val message: String) : CommandResult()

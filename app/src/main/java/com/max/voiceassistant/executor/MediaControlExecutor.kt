@@ -8,19 +8,26 @@ import com.max.voiceassistant.model.CommandResult
 import com.max.voiceassistant.model.CommandType
 
 /**
- * 媒体控制执行器
- * 控制音乐播放和音量
+ * 媒体控制执行器。
+ *
+ * 通过系统 [AudioManager] 与媒体按键事件控制播放/暂停/上下曲、音量与静音；
+ * 实际播放依赖系统或前台媒体应用。
  */
 class MediaControlExecutor(private val context: Context) {
-    
+
     private val audioManager: AudioManager by lazy {
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
-    
-    // 静音前的音量（用于恢复）
+    /** 静音前音量，用于取消静音时恢复 */
     private var volumeBeforeMute: Int = 0
     private var isMuted: Boolean = false
-    
+
+    /**
+     * 执行媒体类命令并返回本地化结果。
+     *
+     * @param command 媒体命令（播放/暂停/音量等）
+     * @return 成功或失败文案
+     */
     fun execute(command: Command): CommandResult {
         return when (command.type) {
             CommandType.MEDIA_PLAY -> executePlay()
@@ -35,15 +42,13 @@ class MediaControlExecutor(private val context: Context) {
             else -> CommandResult.Error(context.getString(R.string.media_unsupported))
         }
     }
-    
+
     /**
-     * 播放音乐
-     * 注意：实际项目中需要使用MediaSession API控制真实的媒体播放器
-     * 这里只是模拟实现
+     * 发送 MEDIA_PLAY 按键事件，由系统或前台应用响应。
+     *
+     * @return 播放中或失败文案
      */
     private fun executePlay(): CommandResult {
-        // 模拟实现：发送媒体按键事件
-        // 实际项目中可以使用MediaController或者与具体播放器App交互
         return try {
             sendMediaKeyEvent(android.view.KeyEvent.KEYCODE_MEDIA_PLAY)
             CommandResult.Success(context.getString(R.string.media_playing))

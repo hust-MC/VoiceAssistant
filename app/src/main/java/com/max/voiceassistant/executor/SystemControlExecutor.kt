@@ -17,37 +17,41 @@ import com.max.voiceassistant.model.CommandResult
 import com.max.voiceassistant.model.CommandType
 
 /**
- * 系统控制执行器
- * 控制WiFi、蓝牙、亮度等系统设置
+ * 系统控制执行器。
+ *
+ * 控制屏幕亮度、WiFi、蓝牙开关与状态查询、打开系统设置；
+ * 高版本依赖系统面板或引导用户到设置页，文案本地化。
  */
 class SystemControlExecutor(private val context: Context) {
-    
+
     private val wifiManager: WifiManager? by lazy {
         context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
     }
-    
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
-        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
-        bluetoothManager?.adapter
+        (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)?.adapter
     }
-    
-    /**
-     * 检查是否有蓝牙连接权限 (Android 12+)
-     */
+
+    /** Android 12+ 需 BLUETOOTH_CONNECT 运行时权限。 */
     private fun hasBluetoothPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ContextCompat.checkSelfPermission(
-                context, 
+                context,
                 Manifest.permission.BLUETOOTH_CONNECT
             ) == PackageManager.PERMISSION_GRANTED
         } else {
-            true // Android 12以下不需要运行时权限
+            true
         }
     }
-    
+
     private val contentResolver: ContentResolver
         get() = context.contentResolver
-    
+
+    /**
+     * 执行系统类命令并返回本地化结果。
+     *
+     * @param command 系统命令（亮度/WiFi/蓝牙/设置）
+     * @return 成功或需权限/错误文案
+     */
     fun execute(command: Command): CommandResult {
         return when (command.type) {
             CommandType.BRIGHTNESS_UP -> executeBrightnessUp()
@@ -63,11 +67,12 @@ class SystemControlExecutor(private val context: Context) {
         }
     }
     
-    // ========== 亮度控制 ==========
-    
+    // ---------- 亮度控制 ----------
+
     /**
-     * 提高亮度
-     * 注意：需要WRITE_SETTINGS权限，且需要在设置中授权
+     * 提高屏幕亮度；无写设置权限时先引导授权。
+     *
+     * @return 已调高/已是最高/需授权/失败文案
      */
     private fun executeBrightnessUp(): CommandResult {
         return try {

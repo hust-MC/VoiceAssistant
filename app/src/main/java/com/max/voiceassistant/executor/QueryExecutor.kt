@@ -8,12 +8,20 @@ import com.max.voiceassistant.model.CommandType
 import java.util.*
 
 /**
- * 信息查询执行器
- * 处理时间、日期、天气、计算等查询
+ * 信息查询执行器。
+ *
+ * 处理时间、日期、星期、天气（模拟）、简单四则运算等查询；
+ * 文案均通过 [context] 做国际化。
  */
 class QueryExecutor(private val context: Context) {
     private fun str(id: Int, vararg args: Any?) = context.getString(id, *args)
 
+    /**
+     * 根据命令类型执行对应查询并返回本地化结果。
+     *
+     * @param command 查询命令（类型 + 可选 params，如城市、表达式）
+     * @return 成功带文案或错误提示
+     */
     fun execute(command: Command): CommandResult {
         return when (command.type) {
             CommandType.QUERY_TIME -> executeQueryTime()
@@ -25,8 +33,9 @@ class QueryExecutor(private val context: Context) {
         }
     }
 
-    // ========== 时间查询 ==========
+    // ---------- 时间查询 ----------
 
+    /** 返回当前时间（时段 + 时:分），文案本地化。 */
     private fun executeQueryTime(): CommandResult {
         val calendar = Calendar.getInstance()
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -46,6 +55,7 @@ class QueryExecutor(private val context: Context) {
         return CommandResult.Success(str(R.string.query_time_format, timeDesc, hour, minute))
     }
 
+    /** 返回当前日期（年/月/日），文案本地化。 */
     private fun executeQueryDate(): CommandResult {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -55,6 +65,7 @@ class QueryExecutor(private val context: Context) {
         return CommandResult.Success(str(R.string.query_date_format, year, month, day))
     }
 
+    /** 返回今天星期几，文案本地化。 */
     private fun executeQueryDayOfWeek(): CommandResult {
         val calendar = Calendar.getInstance()
         val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
@@ -73,12 +84,13 @@ class QueryExecutor(private val context: Context) {
         return CommandResult.Success(str(R.string.query_today_is, dayName))
     }
 
-    // ========== 天气查询 ==========
+    // ---------- 天气查询 ----------
 
     /**
-     * 查询天气
-     * 注意：实际项目中需要调用天气API
-     * 这里使用模拟数据
+     * 查询天气（当前为模拟数据，可按城市+日期生成稳定结果）。
+     *
+     * @param params 可选 city，缺省为默认城市
+     * @return 城市、天气、温度区间、建议的本地化文案
      */
     private fun executeQueryWeather(params: Map<String, String>): CommandResult {
         val city = params["city"] ?: context.getString(R.string.query_default_city)
@@ -88,8 +100,8 @@ class QueryExecutor(private val context: Context) {
         )
     }
 
+    /** 按城市+年内第几天生成可复现的模拟天气。 */
     private fun generateMockWeather(city: String): WeatherInfo {
-        // 根据城市和日期生成模拟天气（保证每次查询相同城市结果一致）
         val random = Random(city.hashCode().toLong() + getDayOfYear())
 
         val conditionSuggestionPairs = listOf(
@@ -127,11 +139,13 @@ class QueryExecutor(private val context: Context) {
         return calendar.get(Calendar.DAY_OF_YEAR)
     }
 
-    // ========== 计算 ==========
+    // ---------- 计算 ----------
 
     /**
-     * 简单计算
-     * 支持：加、减、乘、除
+     * 简单四则运算，支持中文运算符（加/减/乘/除等）。
+     *
+     * @param params 需包含 expression
+     * @return 计算结果或错误提示（本地化）
      */
     private fun executeCalculate(params: Map<String, String>): CommandResult {
         val expression = params["expression"] ?: return CommandResult.Error(str(R.string.query_calc_say_expression))

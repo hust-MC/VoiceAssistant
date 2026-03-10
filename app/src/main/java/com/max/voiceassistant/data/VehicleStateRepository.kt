@@ -6,58 +6,50 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * 车辆状态Repository
- * 管理车辆的各种状态（Mock实现）
+ * 车辆状态仓库（Mock）。
+ *
+ * 持有一份 [VehicleState]，通过 [vehicleState] 对外暴露 [StateFlow]；
+ * 提供各子状态的更新方法，供 [VehicleControlExecutor] 调用。
  */
 class VehicleStateRepository {
-    
+
     private val _vehicleState = MutableStateFlow(VehicleState())
     val vehicleState: StateFlow<VehicleState> = _vehicleState.asStateFlow()
-    
-    /**
-     * 获取当前状态
-     */
+
+    /** 当前整车状态快照。 */
     fun getCurrentState(): VehicleState = _vehicleState.value
-    
-    // ========== 空调控制 ==========
-    
+
+    /** 更新空调状态。 */
     fun updateACState(acState: ACState) {
         _vehicleState.value = _vehicleState.value.copy(ac = acState)
     }
-    
-    // ========== 座椅控制 ==========
-    
+
+    /** 更新座椅状态。 */
     fun updateSeatState(seatState: SeatState) {
         _vehicleState.value = _vehicleState.value.copy(seat = seatState)
     }
-    
-    // ========== 车窗控制 ==========
-    
+
+    /** 更新车窗状态。 */
     fun updateWindowState(windowState: WindowState) {
         _vehicleState.value = _vehicleState.value.copy(window = windowState)
     }
-    
-    // ========== 灯光控制 ==========
-    
+
+    /** 更新灯光状态。 */
     fun updateLightState(lightState: LightState) {
         _vehicleState.value = _vehicleState.value.copy(light = lightState)
     }
-    
-    // ========== 车门控制 ==========
-    
+
+    /** 更新车门状态。 */
     fun updateDoorState(doorState: DoorState) {
         _vehicleState.value = _vehicleState.value.copy(door = doorState)
     }
-    
-    // ========== 引擎控制 ==========
-    
+
+    /** 更新引擎状态。 */
     fun updateEngineState(engineState: EngineState) {
         _vehicleState.value = _vehicleState.value.copy(engine = engineState)
     }
-    
-    /**
-     * 重置所有状态
-     */
+
+    /** 重置为初始整车状态。 */
     fun resetAll() {
         _vehicleState.value = VehicleState()
     }

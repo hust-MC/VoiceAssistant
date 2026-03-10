@@ -10,10 +10,10 @@ import com.max.voiceassistant.R
 import java.util.*
 
 /**
- * 模拟语音管理器
+ * 模拟语音管理器。
  *
- * 在没有百度SDK的情况下，使用Android系统自带的语音功能进行模拟
- * 用于开发和测试阶段
+ * 无百度 SDK 时使用：识别为固定流程（Ready→Begin→音量→2 秒后固定结果→End），
+ * TTS 使用系统 [TextToSpeech]，便于开发与测试。
  */
 class MockSpeechManager(private val context: Context) {
 
@@ -22,23 +22,16 @@ class MockSpeechManager(private val context: Context) {
     }
 
     private val handler = Handler(Looper.getMainLooper())
-
-    // 系统TTS（用于模拟语音合成）
     private var systemTTS: TextToSpeech? = null
     private var isTTSReady = false
-
-    // 模拟识别状态
     private var isListening = false
-
-    // 回调
     private var recognitionListener: SpeechRecognizerManager.RecognitionListener? = null
     private var ttsListener: TTSManager.TTSListener? = null
 
     /**
-     * 初始化
+     * 初始化系统 TTS，设置中文。
      */
     fun init() {
-        // 初始化系统TTS
         systemTTS = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 val result = systemTTS?.setLanguage(Locale.CHINESE)
@@ -51,40 +44,26 @@ class MockSpeechManager(private val context: Context) {
         }
     }
 
-    /**
-     * 设置识别监听器
-     */
+    /** 设置识别回调，与 [SpeechRecognizerManager.RecognitionListener] 一致。 */
     fun setRecognitionListener(listener: SpeechRecognizerManager.RecognitionListener) {
         this.recognitionListener = listener
     }
 
-    /**
-     * 设置TTS监听器
-     */
+    /** 设置 TTS 回调。 */
     fun setTTSListener(listener: TTSManager.TTSListener) {
         this.ttsListener = listener
     }
 
     /**
-     * 开始模拟语音识别
-     *
-     * 模拟流程：
-     * 1. 触发onReady
-     * 2. 触发onBegin
-     * 3. 模拟音量变化
-     * 4. 2秒后触发onResult（返回模拟结果）
-     * 5. 触发onEnd
+     * 开始模拟识别：依次回调 Ready、Begin、模拟音量、2 秒后固定结果、End。
      */
     fun startListening() {
         if (isListening) {
             Log.w(TAG, "Already listening")
             return
         }
-
         isListening = true
         Log.d(TAG, "Mock: Start listening")
-
-        // 模拟识别流程
         handler.post {
             recognitionListener?.onReady()
         }
@@ -94,8 +73,6 @@ class MockSpeechManager(private val context: Context) {
                 recognitionListener?.onBegin()
             }
         }, 200)
-
-        // 模拟音量变化
         simulateVolumeChanges()
     }
 

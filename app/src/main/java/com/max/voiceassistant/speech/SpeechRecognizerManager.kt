@@ -10,52 +10,31 @@ import com.baidu.speech.asr.SpeechConstant
 import org.json.JSONObject
 
 /**
- * 百度语音识别管理器
- * 
- * 封装百度语音识别SDK，提供简单的API接口
- * 基于 baidu_speech_ASR_V3 SDK
+ * 百度语音识别管理器。
+ *
+ * 封装百度 ASR SDK（baidu_speech_ASR_V3），提供 init/start/stop/cancel 与 [RecognitionListener] 回调。
  */
 class SpeechRecognizerManager(private val context: Context) {
-    
+
     companion object {
         private const val TAG = "SpeechRecognizer"
     }
-    
-    // 百度语音识别事件管理器
+
     private var asr: EventManager? = null
-    
-    // 是否已初始化
     private var isInitialized = false
-    
-    // 是否正在识别
     private var isListening = false
-    
-    // 回调监听器
     private var listener: RecognitionListener? = null
-    
+
     /**
-     * 识别结果回调接口
+     * 识别生命周期与结果回调。
      */
     interface RecognitionListener {
-        /** 准备就绪 */
         fun onReady()
-        
-        /** 开始录音 */
         fun onBegin()
-        
-        /** 音量变化 (0-100) */
         fun onVolumeChanged(volume: Int)
-        
-        /** 实时识别结果（部分结果） */
         fun onPartialResult(partialResult: String)
-        
-        /** 最终识别结果 */
         fun onResult(result: String)
-        
-        /** 识别结束 */
         fun onEnd()
-        
-        /** 识别错误 */
         fun onError(errorCode: Int, errorMessage: String)
     }
     

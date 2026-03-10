@@ -6,21 +6,25 @@ import com.max.voiceassistant.data.VehicleStateRepository
 import com.max.voiceassistant.model.*
 
 /**
- * 命令执行器
- * 负责分发和执行各类命令
+ * 命令执行器。
+ *
+ * 按 [Command.category] 将命令分发给媒体、系统、车辆、查询四个子执行器；
+ * 未知类别时返回本地化提示文案。
  */
 class CommandExecutor(
     private val context: Context,
     vehicleStateRepository: VehicleStateRepository
 ) {
-    // 各模块执行器
     private val mediaExecutor = MediaControlExecutor(context)
     private val systemExecutor = SystemControlExecutor(context)
     private val vehicleExecutor = VehicleControlExecutor(context, vehicleStateRepository)
     private val queryExecutor = QueryExecutor(context)
 
     /**
-     * 执行命令
+     * 执行命令并返回结果。
+     *
+     * @param command 待执行命令（含类型与参数）
+     * @return 成功/失败/需权限等结果及文案
      */
     fun execute(command: Command): CommandResult {
         return when (command.category) {

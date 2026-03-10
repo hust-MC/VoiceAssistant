@@ -9,30 +9,23 @@ import com.baidu.tts.client.TtsEntity
 import com.baidu.tts.client.TtsMode
 
 /**
- * 百度语音合成（TTS）管理器
- * 
- * 封装百度语音合成SDK 6.2.7+，提供简单的文字转语音功能
+ * 百度语音合成（TTS）管理器。
+ *
+ * 封装百度 TTS SDK 6.2.7+，提供 init/speak/stop 与 [TTSListener] 回调。
  */
 class TTSManager(private val context: Context) {
-    
+
     companion object {
         private const val TAG = "TTSManager"
     }
-    
-    // 百度TTS合成器
+
     private var synthesizer: SpeechSynthesizer? = null
-    
-    // 是否已初始化
     private var isInitialized = false
-    
-    // 是否正在播放
     private var isSpeaking = false
-    
-    // 回调监听器
     private var listener: TTSListener? = null
-    
+
     /**
-     * TTS回调接口
+     * TTS 合成与播放生命周期回调。
      */
     interface TTSListener {
         fun onSynthesizeStart(utteranceId: String)
@@ -41,10 +34,8 @@ class TTSManager(private val context: Context) {
         fun onSpeechFinish(utteranceId: String)
         fun onError(utteranceId: String, errorMessage: String)
     }
-    
-    /**
-     * 简单的监听器适配器
-     */
+
+    /** 空实现的 [TTSListener]，按需重写。 */
     abstract class SimpleTTSListener : TTSListener {
         override fun onSynthesizeStart(utteranceId: String) {}
         override fun onSpeechStart(utteranceId: String) {}
@@ -52,23 +43,17 @@ class TTSManager(private val context: Context) {
         override fun onSpeechFinish(utteranceId: String) {}
         override fun onError(utteranceId: String, errorMessage: String) {}
     }
-    
-    /**
-     * 百度TTS监听器（适配SDK 6.2.7+）
-     */
+
+    /** 将 SDK 回调转成 [TTSListener] 事件。 */
     private val synthesizerListener = object : SpeechSynthesizerListener {
-        
         override fun onSynthesizeResponse(response: SynthesizerResponse?) {
             if (response == null) {
                 Log.w(TAG, "Response is null")
                 return
             }
-            
             val utteranceId = response.utteranceId ?: ""
             val synthesizeType = response.synthesizeType
             val error = response.synthesizerError
-            
-            // 如果有错误
             if (error != null) {
                 val errorMsg = error.description ?: "未知错误 (code: ${error.code})"
                 Log.e(TAG, "TTS Error: $errorMsg")

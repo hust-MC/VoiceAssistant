@@ -6,17 +6,25 @@ import com.max.voiceassistant.data.VehicleStateRepository
 import com.max.voiceassistant.model.*
 
 /**
- * 车辆控制执行器（Mock实现）
+ * 车辆控制执行器（Mock 实现）。
+ *
+ * 通过 [VehicleStateRepository] 读写空调、座椅、车窗、灯光、车门、引擎等状态；
+ * 所有反馈文案经 [context] 国际化。
  */
 class VehicleControlExecutor(
     private val context: Context,
     private val repository: VehicleStateRepository
 ) {
     private fun str(id: Int, vararg args: Any?) = context.getString(id, *args)
-    
+
+    /**
+     * 根据命令类型执行对应车辆控制并返回结果。
+     *
+     * @param command 车辆类命令（类型 + 可选 params，如温度、颜色）
+     * @return 成功/已满足/错误等本地化文案
+     */
     fun execute(command: Command): CommandResult {
         return when (command.type) {
-            // 空调控制
             CommandType.AC_ON -> executeACOn()
             CommandType.AC_OFF -> executeACOff()
             CommandType.AC_TEMP_UP -> executeACTempUp()
@@ -27,8 +35,6 @@ class VehicleControlExecutor(
             CommandType.AC_MODE_AUTO -> executeACMode(ACMode.AUTO)
             CommandType.AC_MODE_COOL -> executeACMode(ACMode.COOL)
             CommandType.AC_MODE_HEAT -> executeACMode(ACMode.HEAT)
-            
-            // 座椅控制
             CommandType.SEAT_FORWARD -> executeSeatForward()
             CommandType.SEAT_BACKWARD -> executeSeatBackward()
             CommandType.SEAT_HEAT_ON -> executeSeatHeat(true)
@@ -36,8 +42,6 @@ class VehicleControlExecutor(
             CommandType.SEAT_VENTILATION_ON -> executeSeatVentilation(true)
             CommandType.SEAT_VENTILATION_OFF -> executeSeatVentilation(false)
             CommandType.SEAT_RESET -> executeSeatReset()
-            
-            // 车窗控制
             CommandType.WINDOW_FRONT_OPEN -> executeWindowFront(WindowState.FULL_OPEN)
             CommandType.WINDOW_FRONT_CLOSE -> executeWindowFront(WindowState.CLOSED)
             CommandType.WINDOW_FRONT_HALF -> executeWindowFront(WindowState.HALF_OPEN)
@@ -45,22 +49,16 @@ class VehicleControlExecutor(
             CommandType.WINDOW_REAR_CLOSE -> executeWindowRear(WindowState.CLOSED)
             CommandType.SUNROOF_OPEN -> executeSunroof(true)
             CommandType.SUNROOF_CLOSE -> executeSunroof(false)
-            
-            // 灯光控制
             CommandType.LIGHT_HEADLIGHT_ON -> executeHeadlight(true)
             CommandType.LIGHT_HEADLIGHT_OFF -> executeHeadlight(false)
             CommandType.LIGHT_HEADLIGHT_AUTO -> executeHeadlightAuto()
             CommandType.LIGHT_AMBIENT_ON -> executeAmbientLight(true)
             CommandType.LIGHT_AMBIENT_OFF -> executeAmbientLight(false)
             CommandType.LIGHT_AMBIENT_COLOR -> executeAmbientColor(command.params)
-            
-            // 车门控制
             CommandType.DOOR_LOCK -> executeDoorLock(true)
             CommandType.DOOR_UNLOCK -> executeDoorLock(false)
             CommandType.TRUNK_OPEN -> executeTrunk(true)
             CommandType.TRUNK_CLOSE -> executeTrunk(false)
-            
-            // 引擎控制
             CommandType.ENGINE_START -> executeEngine(true)
             CommandType.ENGINE_STOP -> executeEngine(false)
             

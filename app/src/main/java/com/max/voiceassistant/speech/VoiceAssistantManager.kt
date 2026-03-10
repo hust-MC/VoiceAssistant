@@ -6,40 +6,28 @@ import com.max.voiceassistant.R
 import com.max.voiceassistant.data.AppSettings
 
 /**
- * 语音助手管理器
- * 
- * 统一管理语音识别和语音合成功能
- * 自动检测百度SDK是否可用，不可用时使用模拟模式
+ * 语音助手管理器。
+ *
+ * 统一封装语音识别（ASR）与语音合成（TTS）：根据 [AppSettings] 与 [SpeechConfig] 选择模拟模式或百度 SDK；
+ * 对外提供 [RecognitionCallback] / [TTSCallback]，内部转发到 Mock 或真实引擎。
  */
 class VoiceAssistantManager(private val context: Context) {
-    
+
     companion object {
         private const val TAG = "VoiceAssistantManager"
     }
-    
-    // 设置管理
+
     private val appSettings = AppSettings(context)
-    
-    // 是否使用模拟模式（从设置读取）
-    private val useMockMode: Boolean
-        get() = appSettings.useMockMode
-    
-    // 模拟模式管理器
+    private val useMockMode: Boolean get() = appSettings.useMockMode
     private var mockManager: MockSpeechManager? = null
-    
-    // 百度SDK管理器（真实模式）
     private var speechRecognizer: SpeechRecognizerManager? = null
     private var ttsManager: TTSManager? = null
-    
-    // 是否已初始化
     private var isInitialized = false
-    
-    // 回调
     private var recognitionCallback: RecognitionCallback? = null
     private var ttsCallback: TTSCallback? = null
-    
+
     /**
-     * 语音识别回调
+     * 语音识别生命周期与结果回调。
      */
     interface RecognitionCallback {
         fun onReady()
@@ -50,18 +38,20 @@ class VoiceAssistantManager(private val context: Context) {
         fun onEnd()
         fun onError(errorCode: Int, errorMessage: String)
     }
-    
+
     /**
-     * TTS回调
+     * TTS 播报开始/结束与错误回调。
      */
     interface TTSCallback {
         fun onSpeakStart()
         fun onSpeakFinish()
         fun onError(message: String)
     }
-    
+
     /**
-     * 初始化语音功能
+     * 初始化语音功能：按配置走模拟或真实模式，只初始化一次。
+     *
+     * @return 是否初始化成功
      */
     fun init(): Boolean {
         if (isInitialized) {
@@ -75,17 +65,12 @@ class VoiceAssistantManager(private val context: Context) {
             initRealMode()
         }
     }
-    
-    /**
-     * 初始化模拟模式
-     */
+
+    /** 创建并配置 Mock 管理器，注册识别与 TTS 回调。 */
     private fun initMockMode(): Boolean {
         Log.d(TAG, "Initializing in MOCK mode")
-        
         mockManager = MockSpeechManager(context).apply {
             init()
-            
-            // 设置识别回调
             setRecognitionListener(object : SpeechRecognizerManager.RecognitionListener {
                 override fun onReady() {
                     recognitionCallback?.onReady()
@@ -115,8 +100,6 @@ class VoiceAssistantManager(private val context: Context) {
                     recognitionCallback?.onError(errorCode, errorMessage)
                 }
             })
-            
-            // 设置TTS回调
             setTTSListener(object : TTSManager.TTSListener {
                 override fun onSynthesizeStart(utteranceId: String) {}
                 

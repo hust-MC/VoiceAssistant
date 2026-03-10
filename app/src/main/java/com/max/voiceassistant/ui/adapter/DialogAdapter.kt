@@ -11,10 +11,12 @@ import com.max.voiceassistant.R
 import com.max.voiceassistant.model.DialogMessage
 
 /**
- * 对话列表适配器
+ * 对话列表适配器。
+ *
+ * 按 [DialogMessage] 是用户或助手选择不同 item 布局，用 [DialogDiffCallback] 做增量刷新。
  */
 class DialogAdapter : ListAdapter<DialogMessage, DialogAdapter.DialogViewHolder>(DialogDiffCallback()) {
-    
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DialogViewHolder {
         val layoutRes = when (viewType) {
             VIEW_TYPE_USER -> R.layout.item_dialog_user
@@ -36,9 +38,9 @@ class DialogAdapter : ListAdapter<DialogMessage, DialogAdapter.DialogViewHolder>
         }
     }
     
+    /** 单条消息 ViewHolder，仅展示 [DialogMessage.text]。 */
     class DialogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvContent: TextView = itemView.findViewById(R.id.tvContent)
-        
         fun bind(message: DialogMessage) {
             tvContent.text = message.text
         }

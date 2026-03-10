@@ -5,21 +5,21 @@ import com.max.voiceassistant.model.CommandCategory
 import com.max.voiceassistant.model.CommandType
 
 /**
- * 意图识别解析器
- * 将用户的语音识别文本解析为具体的命令
+ * 意图解析器。
+ *
+ * 将用户语音/文本解析为 [Command]：先做常见表达映射（如「太冷了」），再按媒体/车辆/系统/查询规则匹配。
  */
 class IntentParser {
-    
+
     /**
-     * 解析用户输入，返回对应的命令
+     * 解析用户输入为一条命令。
+     *
+     * @param text 用户输入（已识别或手动输入）
+     * @return 对应命令，无法识别时为 [CommandType.UNKNOWN]
      */
     fun parse(text: String): Command {
         val normalizedText = text.lowercase().trim()
-        
-        // 1. 先尝试常见表达映射（处理隐含意图）
         findExpressionMatch(normalizedText)?.let { return it }
-        
-        // 2. 再尝试规则匹配
         return when {
             isMediaCommand(normalizedText) -> parseMediaCommand(normalizedText)
             isVehicleCommand(normalizedText) -> parseVehicleCommand(normalizedText)
@@ -29,32 +29,23 @@ class IntentParser {
         }
     }
     
-    // ========== 常见表达映射（处理隐含意图）==========
-    
-    /**
-     * 常见表达映射表
-     * 用于处理"太冷了"这种不直接说明意图的表达
-     */
+    /** 常见表达 → 命令映射，用于「太冷了」「风太大」等隐含意图。 */
     private val expressionMap = listOf(
-        // 温度相关的隐含表达
         ExpressionMapping(listOf("太冷了", "好冷", "冻死了", "有点冷", "冷死了", "很冷"), 
             Command(CommandType.AC_TEMP_UP, CommandCategory.VEHICLE)),
-        ExpressionMapping(listOf("太热了", "好热", "热死了", "有点热", "很热", "闷"), 
+        ExpressionMapping(listOf("太热了", "好热", "热死了", "有点热", "很热", "闷"),
             Command(CommandType.AC_TEMP_DOWN, CommandCategory.VEHICLE)),
-        
-        // 风速相关
-        ExpressionMapping(listOf("风太大了", "风好大", "吹得难受"), 
+        ExpressionMapping(listOf("风太大了", "风好大", "吹得难受"),
             Command(CommandType.AC_FAN_DOWN, CommandCategory.VEHICLE)),
-        ExpressionMapping(listOf("风太小了", "不够凉快", "没感觉"), 
+        ExpressionMapping(listOf("风太小了", "不够凉快", "没感觉"),
             Command(CommandType.AC_FAN_UP, CommandCategory.VEHICLE)),
-        
-        // 灯光相关
-        ExpressionMapping(listOf("太暗了", "看不清", "黑"), 
+        ExpressionMapping(listOf("太暗了", "看不清", "黑"),
             Command(CommandType.BRIGHTNESS_UP, CommandCategory.SYSTEM)),
-        ExpressionMapping(listOf("太亮了", "刺眼", "晃眼"), 
+        ExpressionMapping(listOf("太亮了", "刺眼", "晃眼"),
             Command(CommandType.BRIGHTNESS_DOWN, CommandCategory.SYSTEM)),
     )
-    
+
+    /** 若文本包含任一映射表达则返回对应命令，否则 null。 */
     private fun findExpressionMatch(text: String): Command? {
         for (mapping in expressionMap) {
             if (mapping.expressions.any { text.contains(it) }) {
@@ -63,8 +54,6 @@ class IntentParser {
         }
         return null
     }
-    
-    // ========== 判断命令大类 ==========
     
     private fun isMediaCommand(text: String): Boolean {
         val keywords = listOf(

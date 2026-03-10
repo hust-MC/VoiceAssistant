@@ -24,28 +24,32 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * 主界面Activity
+ * 主界面 Activity。
+ *
+ * 负责：标题栏、对话列表、车辆状态卡片、语音输入区、快捷命令、设置与关于弹窗；
+ * 监听 ViewModel 状态并更新 UI，处理录音权限与麦克风点击。
  */
 class MainActivity : AppCompatActivity() {
-    
+
     private lateinit var binding: ActivityMainBinding
-    
-    // Repository实例
+
+    /** 车辆状态仓库 */
     private val vehicleStateRepository by lazy { VehicleStateRepository() }
+    /** 对话历史仓库 */
     private val dialogRepository by lazy { DialogRepository() }
-    
-    // 设置管理
+    /** 应用设置（Mock/真实模式等） */
     private val appSettings by lazy { AppSettings(applicationContext) }
-    
+
     private val viewModel: MainViewModel by viewModels {
         MainViewModel.Factory(
             applicationContext, vehicleStateRepository, dialogRepository
         )
     }
-    
+
+    /** 对话列表适配器 */
     private lateinit var dialogAdapter: DialogAdapter
 
-    // 权限请求
+    /** 录音权限请求 Launcher */
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -73,7 +77,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 显示当前运行模式
+     * 显示当前运行模式提示。
+     * 若为模拟模式则 Toast 提示用户可点击麦克风后使用快捷命令测试。
      */
     private fun showModeInfo() {
         if (viewModel.isMockMode()) {
@@ -82,24 +87,22 @@ class MainActivity : AppCompatActivity() {
     }
     
     /**
-     * 初始化UI
+     * 初始化 UI：对话列表、布局与适配器。
      */
     private fun setupUI() {
-        // 设置对话列表
         dialogAdapter = DialogAdapter()
         binding.dialogRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity).apply {
-                stackFromEnd = true // 新消息显示在底部
+                stackFromEnd = true
             }
             adapter = dialogAdapter
         }
     }
     
     /**
-     * 设置状态观察
+     * 订阅 ViewModel 的各类 StateFlow，驱动 UI 更新。
      */
     private fun setupObservers() {
-        // 观察空调状态
         lifecycleScope.launch {
             viewModel.acState.collectLatest { acState ->
                 updateACUI(acState)
@@ -123,10 +126,8 @@ class MainActivity : AppCompatActivity() {
         // 观察对话历史
         lifecycleScope.launch {
             viewModel.dialogHistory.collectLatest { dialogs ->
-                // 使用带回调的 submitList，确保列表更新完成后再滚动
                 dialogAdapter.submitList(dialogs.toList()) {
-                // 滚动到底部
-                if (dialogs.isNotEmpty()) {
+                    if (dialogs.isNotEmpty()) {
                         binding.dialogRecyclerView.smoothScrollToPosition(dialogs.size - 1)
                     }
                 }
@@ -170,10 +171,9 @@ class MainActivity : AppCompatActivity() {
     }
     
     /**
-     * 设置点击事件
+     * 绑定麦克风、快捷命令 Chip、设置按钮的点击事件。
      */
     private fun setupClickListeners() {
-        // 麦克风按钮
         binding.fabMicrophone.setOnClickListener {
             onMicrophoneClicked()
         }
@@ -198,51 +198,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 处理快捷命令
+     * 将快捷命令文本交给 ViewModel 执行。
+     *
+     * @param text 快捷命令文案（如「播放音乐」「打开空调」）
      */
     private fun processQuickCommand(text: String) {
         viewModel.processUserInput(text)
     }
     
     /**
-     * 麦克风按钮点击
+     * 根据当前识别状态处理麦克风点击：空闲/错误时请求权限并开始，聆听时停止，处理中不响应。
      */
     private fun onMicrophoneClicked() {
         val currentState = viewModel.recognitionState.value
-        
         when (currentState) {
-            RecognitionState.IDLE -> {
-                // 检查权限后开始录音
-                checkPermissionAndStart()
-            }
-
-            RecognitionState.LISTENING -> {
-                // 停止录音
-                viewModel.stopListening()
-            }
-
-            RecognitionState.RECOGNIZING, RecognitionState.PROCESSING -> {
-                // 处理中，不操作
-            }
-
-            RecognitionState.ERROR -> {
-                // 重试
-                checkPermissionAndStart()
-            }
+            RecognitionState.IDLE -> checkPermissionAndStart()
+            RecognitionState.LISTENING -> viewModel.stopListening()
+            RecognitionState.RECOGNIZING, RecognitionState.PROCESSING -> { }
+            RecognitionState.ERROR -> checkPermissionAndStart()
         }
     }
 
     /**
-     * 检查权限并开始录音
+     * 检查录音权限：已有则直接开始；需说明则弹窗后请求；否则直接请求。
      */
     private fun checkPermissionAndStart() {
         when {
-            // 已有权限
             ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED -> {
                 startVoiceRecognition()
             }
-
-            // 需要解释为什么需要权限
             shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO) -> {
                 AlertDialog.Builder(this).setTitle(R.string.permission_record_title)
                     .setMessage(R.string.permission_record_message)
@@ -253,7 +237,6 @@ class MainActivity : AppCompatActivity() {
                     }.setNegativeButton(R.string.common_cancel, null).show()
             }
 
-            // 直接请求权限
             else -> {
                 requestPermissionLauncher.launch(
                     arrayOf(Manifest.permission.RECORD_AUDIO)
@@ -263,14 +246,14 @@ class MainActivity : AppCompatActivity() {
     }
     
     /**
-     * 开始语音识别
+     * 调用 ViewModel 开始语音识别。
      */
     private fun startVoiceRecognition() {
         viewModel.startListening()
     }
 
     /**
-     * 显示设置对话框
+     * 显示设置对话框：语音模式、清空历史、关于。
      */
     private fun showSettingsDialog() {
         val currentMode = if (appSettings.useMockMode) getString(R.string.settings_mode_mock) else getString(R.string.settings_mode_real)
@@ -293,7 +276,7 @@ class MainActivity : AppCompatActivity() {
     }
     
     /**
-     * 显示模式选择对话框
+     * 显示语音模式选择（模拟 / 真实），切换后需重启生效。
      */
     private fun showModeSelectionDialog() {
         val modes = arrayOf(getString(R.string.settings_mode_mock_label), getString(R.string.settings_mode_real_label))
@@ -315,7 +298,7 @@ class MainActivity : AppCompatActivity() {
     }
     
     /**
-     * 显示关于对话框
+     * 显示关于：应用名、当前模式、功能列表与提示。
      */
     private fun showAboutDialog() {
         val modeText = if (viewModel.isMockMode()) getString(R.string.settings_mode_mock) else getString(R.string.settings_mode_real_label)
@@ -324,8 +307,14 @@ class MainActivity : AppCompatActivity() {
         ).setPositiveButton(R.string.common_ok, null).show()
     }
     
-    // ========== UI更新方法 ==========
+    // ---------- UI 更新 ----------
 
+    /**
+     * 取空调模式的本地化名称。
+     *
+     * @param mode 空调模式
+     * @return 对应 string 资源文案
+     */
     private fun getAcModeName(mode: ACMode): String = getString(
         when (mode) {
             ACMode.AUTO -> R.string.ac_mode_auto
@@ -334,8 +323,12 @@ class MainActivity : AppCompatActivity() {
         }
     )
     
+    /**
+     * 根据空调状态更新图标、颜色与文案。
+     *
+     * @param acState 当前空调状态
+     */
     private fun updateACUI(acState: ACState) {
-        // 根据空调模式更新图标和颜色
         if (acState.isOn) {
             when (acState.mode) {
                 ACMode.HEAT -> {
@@ -355,44 +348,49 @@ class MainActivity : AppCompatActivity() {
             binding.iconAC.setImageResource(R.drawable.ic_ac)
             binding.iconAC.setColorFilter(getColor(R.color.text_secondary))
         }
-        
-        // 更新空调状态文字
         binding.tvACStatus.text = if (acState.isOn) {
             getString(R.string.main_ac_on, getAcModeName(acState.mode))
         } else {
             getString(R.string.main_ac_off)
         }
-        
-        // 更新温度显示
         binding.tvTemperature.text = "${acState.temperature}°C"
     }
-    
+
+    /**
+     * 根据车门状态更新锁图标颜色与锁定/未锁定文案。
+     *
+     * @param doorState 车门状态
+     */
     private fun updateDoorUI(doorState: DoorState) {
-        // 更新车门图标颜色
         val iconColor = if (doorState.isLocked) {
             getColor(R.color.accent_green)
         } else {
             getColor(R.color.accent_orange)
         }
         binding.iconDoor.setColorFilter(iconColor)
-        
-        // 更新车门状态文字
         binding.tvDoorStatus.text = if (doorState.isLocked) getString(R.string.main_door_locked) else getString(R.string.main_door_unlocked)
     }
-    
+
+    /**
+     * 根据引擎状态更新图标颜色与运行中/熄火文案。
+     *
+     * @param engineState 引擎状态
+     */
     private fun updateEngineUI(engineState: EngineState) {
-        // 更新引擎图标颜色
         val iconColor = if (engineState.isRunning) {
             getColor(R.color.accent_green)
         } else {
             getColor(R.color.text_secondary)
         }
         binding.iconEngine.setColorFilter(iconColor)
-        
-        // 更新引擎状态文字
         binding.tvEngineStatus.text = if (engineState.isRunning) getString(R.string.main_engine_running) else getString(R.string.main_engine_off)
     }
-    
+
+    /**
+     * 根据识别状态更新提示文案与麦克风按钮可用性。
+     *
+     * @param state 当前识别状态
+     */
     private fun updateRecognitionStateUI(state: RecognitionState) {
         when (state) {
             RecognitionState.IDLE -> {
@@ -424,7 +422,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    
+
+    /**
+     * 显示或隐藏识别到的文字。
+     *
+     * @param text 识别结果，空则隐藏
+     */
     private fun updateRecognizedTextUI(text: String) {
         if (text.isNotEmpty()) {
             binding.tvRecognizedText.visibility = View.VISIBLE
@@ -434,22 +437,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 根据音量更新麦克风按钮透明度（可扩展为波形动画）。
+     *
+     * @param volume 音量 0–100
+     */
     private fun updateVolumeUI(volume: Int) {
-        // 音量更新（可用于未来扩展波形动画）
-        // 目前通过麦克风按钮的视觉效果来表示音量
         if (volume > 0) {
-            // 可以根据音量调整麦克风按钮的视觉反馈
             val alpha = 0.5f + (volume / 100f) * 0.5f
             binding.fabMicrophone.alpha = alpha.coerceIn(0.5f, 1f)
         } else {
             binding.fabMicrophone.alpha = 1f
         }
     }
-    
+
+    /**
+     * 显示命令执行结果卡片：成功蓝、失败红、需权限橙；NeedPermission 时触发权限请求。
+     *
+     * @param result 执行结果，null 则隐藏卡片
+     */
     private fun updateFeedbackUI(result: CommandResult?) {
         if (result != null) {
             binding.feedbackCard.visibility = View.VISIBLE
-            
             when (result) {
                 is CommandResult.Success -> {
                     binding.feedbackCard.setCardBackgroundColor(getColor(R.color.accent_blue))
@@ -467,7 +476,6 @@ class MainActivity : AppCompatActivity() {
                     binding.feedbackCard.setCardBackgroundColor(getColor(R.color.accent_orange))
                     binding.iconFeedback.setImageResource(R.drawable.ic_check_circle)
                     binding.tvFeedback.text = result.message
-                    // 请求权限
                     requestPermissionLauncher.launch(arrayOf(result.permission))
                 }
             }
@@ -476,13 +484,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * TTS 播放状态 UI（可扩展：如显示小喇叭图标）。
+     *
+     * @param isSpeaking 是否正在播报
+     */
     private fun updateSpeakingUI(isSpeaking: Boolean) {
-        // 可以添加TTS播放状态的视觉提示
-        // 例如：显示一个小喇叭图标表示正在播报
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        // ViewModel会自动释放语音资源
     }
 }
