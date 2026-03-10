@@ -11,6 +11,7 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import com.max.voiceassistant.R
 import com.max.voiceassistant.model.Command
 import com.max.voiceassistant.model.CommandResult
 import com.max.voiceassistant.model.CommandType
@@ -58,7 +59,7 @@ class SystemControlExecutor(private val context: Context) {
             CommandType.BLUETOOTH_OFF -> executeBluetoothOff()
             CommandType.BLUETOOTH_STATUS -> executeBluetoothStatus()
             CommandType.OPEN_SETTINGS -> executeOpenSettings()
-            else -> CommandResult.Error("不支持的系统命令")
+            else -> CommandResult.Error(context.getString(R.string.system_unsupported))
         }
     }
     
@@ -84,16 +85,16 @@ class SystemControlExecutor(private val context: Context) {
             )
             
             if (currentBrightness >= 255) {
-                return CommandResult.Success("亮度已经是最高了")
+                return CommandResult.Success(context.getString(R.string.system_brightness_max))
             }
             
             val newBrightness = (currentBrightness + 25).coerceAtMost(255)
             setBrightness(newBrightness)
             
             val percent = (newBrightness * 100 / 255)
-            CommandResult.Success("亮度已调高，当前${percent}%")
+            CommandResult.Success(context.getString(R.string.system_brightness_up, percent))
         } catch (e: Exception) {
-            CommandResult.Error("调节亮度失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.system_brightness_failed, e.message ?: ""))
         }
     }
     
@@ -113,16 +114,16 @@ class SystemControlExecutor(private val context: Context) {
             )
             
             if (currentBrightness <= 10) {
-                return CommandResult.Success("亮度已经是最低了")
+                return CommandResult.Success(context.getString(R.string.system_brightness_min))
             }
             
             val newBrightness = (currentBrightness - 25).coerceAtLeast(10)
             setBrightness(newBrightness)
             
             val percent = (newBrightness * 100 / 255)
-            CommandResult.Success("亮度已调低，当前${percent}%")
+            CommandResult.Success(context.getString(R.string.system_brightness_down, percent))
         } catch (e: Exception) {
-            CommandResult.Error("调节亮度失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.system_brightness_failed, e.message ?: ""))
         }
     }
     
@@ -173,9 +174,9 @@ class SystemControlExecutor(private val context: Context) {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
-            CommandResult.Success("请在弹出的页面中授权，然后再试一次")
+            CommandResult.Success(context.getString(R.string.system_grant_in_panel))
         } catch (e: Exception) {
-            CommandResult.Error("无法打开授权页面：${e.message}")
+            CommandResult.Error(context.getString(R.string.system_cannot_open_panel, e.message ?: ""))
         }
     }
     
@@ -189,69 +190,65 @@ class SystemControlExecutor(private val context: Context) {
     @Suppress("DEPRECATION")
     private fun executeWifiOn(): CommandResult {
         return try {
-            val wifi = wifiManager ?: return CommandResult.Error("无法访问WiFi服务")
+            val wifi = wifiManager ?: return CommandResult.Error(context.getString(R.string.system_wifi_unavailable))
             
             if (wifi.isWifiEnabled) {
-                return CommandResult.Success("WiFi已经是打开状态")
+                return CommandResult.Success(context.getString(R.string.system_wifi_already_on))
             }
             
-            // Android Q以上需要引导用户到设置
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val intent = Intent(Settings.Panel.ACTION_WIFI)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
-                return CommandResult.Success("请在弹出的面板中打开WiFi")
+                return CommandResult.Success(context.getString(R.string.system_wifi_open_panel))
             }
             
-            // Android Q以下可以直接控制
             wifi.isWifiEnabled = true
-            CommandResult.Success("WiFi已打开")
+            CommandResult.Success(context.getString(R.string.system_wifi_on))
         } catch (e: Exception) {
-            CommandResult.Error("打开WiFi失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.system_wifi_on_failed, e.message ?: ""))
         }
     }
     
     @Suppress("DEPRECATION")
     private fun executeWifiOff(): CommandResult {
         return try {
-            val wifi = wifiManager ?: return CommandResult.Error("无法访问WiFi服务")
+            val wifi = wifiManager ?: return CommandResult.Error(context.getString(R.string.system_wifi_unavailable))
             
             if (!wifi.isWifiEnabled) {
-                return CommandResult.Success("WiFi已经是关闭状态")
+                return CommandResult.Success(context.getString(R.string.system_wifi_already_off))
             }
             
-            // Android Q以上需要引导用户到设置
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val intent = Intent(Settings.Panel.ACTION_WIFI)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
-                return CommandResult.Success("请在弹出的面板中关闭WiFi")
+                return CommandResult.Success(context.getString(R.string.system_wifi_off_panel))
             }
             
-            // Android Q以下可以直接控制
             wifi.isWifiEnabled = false
-            CommandResult.Success("WiFi已关闭")
+            CommandResult.Success(context.getString(R.string.system_wifi_off))
         } catch (e: Exception) {
-            CommandResult.Error("关闭WiFi失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.system_wifi_off_failed, e.message ?: ""))
         }
     }
     
     private fun executeWifiStatus(): CommandResult {
         return try {
-            val wifi = wifiManager ?: return CommandResult.Error("无法访问WiFi服务")
+            val wifi = wifiManager ?: return CommandResult.Error(context.getString(R.string.system_wifi_unavailable))
             
             if (wifi.isWifiEnabled) {
-                val ssid = wifi.connectionInfo?.ssid?.replace("\"", "") ?: "未知网络"
+                val ssid = wifi.connectionInfo?.ssid?.replace("\"", "") ?: context.getString(R.string.system_wifi_unknown_network)
                 if (ssid == "<unknown ssid>") {
-                    CommandResult.Success("WiFi已打开，但未连接网络")
+                    CommandResult.Success(context.getString(R.string.system_wifi_not_connected))
                 } else {
-                    CommandResult.Success("WiFi已连接到：$ssid")
+                    CommandResult.Success(context.getString(R.string.system_wifi_connected, ssid))
                 }
             } else {
-                CommandResult.Success("WiFi已关闭")
+                CommandResult.Success(context.getString(R.string.system_wifi_off))
             }
         } catch (e: Exception) {
-            CommandResult.Error("获取WiFi状态失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.system_wifi_status_failed, e.message ?: ""))
         }
     }
     
@@ -262,7 +259,7 @@ class SystemControlExecutor(private val context: Context) {
             // Android 12+ 需要检查 BLUETOOTH_CONNECT 权限
             if (!hasBluetoothPermission()) {
                 return CommandResult.NeedPermission(
-                    "需要蓝牙权限才能控制蓝牙",
+                    context.getString(R.string.system_bluetooth_permission),
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         Manifest.permission.BLUETOOTH_CONNECT
                     } else {
@@ -271,20 +268,19 @@ class SystemControlExecutor(private val context: Context) {
                 )
             }
             
-            val bluetooth = bluetoothAdapter ?: return CommandResult.Error("设备不支持蓝牙")
+            val bluetooth = bluetoothAdapter ?: return CommandResult.Error(context.getString(R.string.system_bluetooth_unsupported))
             
             if (bluetooth.isEnabled) {
-                return CommandResult.Success("蓝牙已经是打开状态")
+                return CommandResult.Success(context.getString(R.string.system_bluetooth_already_on))
             }
             
-            // 引导用户打开蓝牙
             val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
-            CommandResult.Success("请在弹出的对话框中确认打开蓝牙")
+            CommandResult.Success(context.getString(R.string.system_bluetooth_confirm_on))
         } catch (e: SecurityException) {
             CommandResult.NeedPermission(
-                "需要蓝牙权限",
+                context.getString(R.string.system_bluetooth_permission_short),
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     Manifest.permission.BLUETOOTH_CONNECT
                 } else {
@@ -292,7 +288,7 @@ class SystemControlExecutor(private val context: Context) {
                 }
             )
         } catch (e: Exception) {
-            CommandResult.Error("打开蓝牙失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.system_bluetooth_on_failed, e.message ?: ""))
         }
     }
     
@@ -301,7 +297,7 @@ class SystemControlExecutor(private val context: Context) {
         return try {
             if (!hasBluetoothPermission()) {
                 return CommandResult.NeedPermission(
-                    "需要蓝牙权限才能控制蓝牙",
+                    context.getString(R.string.system_bluetooth_permission),
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         Manifest.permission.BLUETOOTH_CONNECT
                     } else {
@@ -310,31 +306,28 @@ class SystemControlExecutor(private val context: Context) {
                 )
             }
             
-            val bluetooth = bluetoothAdapter ?: return CommandResult.Error("设备不支持蓝牙")
+            val bluetooth = bluetoothAdapter ?: return CommandResult.Error(context.getString(R.string.system_bluetooth_unsupported))
             
             if (!bluetooth.isEnabled) {
-                return CommandResult.Success("蓝牙已经是关闭状态")
+                return CommandResult.Success(context.getString(R.string.system_bluetooth_already_off))
             }
             
-            // Android 13+ 普通App无法直接关闭蓝牙，引导到设置
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
-                return CommandResult.Success("请在设置中关闭蓝牙")
+                return CommandResult.Success(context.getString(R.string.system_bluetooth_off_in_settings))
             }
             
-            // 尝试直接关闭（可能需要BLUETOOTH_ADMIN权限）
             bluetooth.disable()
-            CommandResult.Success("蓝牙已关闭")
+            CommandResult.Success(context.getString(R.string.system_bluetooth_off))
         } catch (e: SecurityException) {
-            // 如果直接关闭失败，引导用户到设置
             val intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
-            CommandResult.Success("请在设置中关闭蓝牙")
+            CommandResult.Success(context.getString(R.string.system_bluetooth_off_in_settings))
         } catch (e: Exception) {
-            CommandResult.Error("关闭蓝牙失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.system_bluetooth_off_failed, e.message ?: ""))
         }
     }
     
@@ -342,7 +335,7 @@ class SystemControlExecutor(private val context: Context) {
         return try {
             if (!hasBluetoothPermission()) {
                 return CommandResult.NeedPermission(
-                    "需要蓝牙权限才能查询状态",
+                    context.getString(R.string.system_bluetooth_permission_query),
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         Manifest.permission.BLUETOOTH_CONNECT
                     } else {
@@ -351,16 +344,16 @@ class SystemControlExecutor(private val context: Context) {
                 )
             }
             
-            val bluetooth = bluetoothAdapter ?: return CommandResult.Error("设备不支持蓝牙")
+            val bluetooth = bluetoothAdapter ?: return CommandResult.Error(context.getString(R.string.system_bluetooth_unsupported))
             
             if (bluetooth.isEnabled) {
-                CommandResult.Success("蓝牙已打开")
+                CommandResult.Success(context.getString(R.string.system_bluetooth_on))
             } else {
-                CommandResult.Success("蓝牙已关闭")
+                CommandResult.Success(context.getString(R.string.system_bluetooth_off))
             }
         } catch (e: SecurityException) {
             CommandResult.NeedPermission(
-                "需要蓝牙权限",
+                context.getString(R.string.system_bluetooth_permission_short),
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     Manifest.permission.BLUETOOTH_CONNECT
                 } else {
@@ -368,7 +361,7 @@ class SystemControlExecutor(private val context: Context) {
                 }
             )
         } catch (e: Exception) {
-            CommandResult.Error("获取蓝牙状态失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.system_bluetooth_status_failed, e.message ?: ""))
         }
     }
     
@@ -379,9 +372,9 @@ class SystemControlExecutor(private val context: Context) {
             val intent = Intent(Settings.ACTION_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
-            CommandResult.Success("已打开设置")
+            CommandResult.Success(context.getString(R.string.system_settings_opened))
         } catch (e: Exception) {
-            CommandResult.Error("打开设置失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.system_settings_open_failed, e.message ?: ""))
         }
     }
 }

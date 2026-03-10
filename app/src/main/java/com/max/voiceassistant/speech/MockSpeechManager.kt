@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import com.max.voiceassistant.R
 import java.util.*
 
 /**
@@ -208,7 +209,7 @@ class MockSpeechManager(private val context: Context) {
 
             override fun onError(id: String?) {
                 handler.post {
-                    ttsListener?.onError(utteranceId, "TTS播放错误")
+                    ttsListener?.onError(utteranceId, context.getString(R.string.speech_tts_error))
                 }
             }
         })

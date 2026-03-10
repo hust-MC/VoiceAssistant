@@ -1,16 +1,18 @@
 package com.max.voiceassistant.executor
 
+import android.content.Context
+import com.max.voiceassistant.R
 import com.max.voiceassistant.model.Command
 import com.max.voiceassistant.model.CommandResult
 import com.max.voiceassistant.model.CommandType
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
  * 信息查询执行器
  * 处理时间、日期、天气、计算等查询
  */
-class QueryExecutor {
+class QueryExecutor(private val context: Context) {
+    private fun str(id: Int, vararg args: Any?) = context.getString(id, *args)
 
     fun execute(command: Command): CommandResult {
         return when (command.type) {
@@ -19,7 +21,7 @@ class QueryExecutor {
             CommandType.QUERY_DAY_OF_WEEK -> executeQueryDayOfWeek()
             CommandType.QUERY_WEATHER -> executeQueryWeather(command.params)
             CommandType.QUERY_CALCULATE -> executeCalculate(command.params)
-            else -> CommandResult.Error("不支持的查询命令")
+            else -> CommandResult.Error(str(R.string.query_unsupported))
         }
     }
 
@@ -30,18 +32,18 @@ class QueryExecutor {
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
 
-        val timeDesc = when {
-            hour < 6 -> "凌晨"
-            hour < 9 -> "早上"
-            hour < 12 -> "上午"
-            hour == 12 -> "中午"
-            hour < 14 -> "中午"
-            hour < 18 -> "下午"
-            hour < 20 -> "傍晚"
-            else -> "晚上"
+        val timeDescResId = when {
+            hour < 6 -> R.string.query_time_early_morning
+            hour < 9 -> R.string.query_time_morning
+            hour < 12 -> R.string.query_time_forenoon
+            hour == 12 -> R.string.query_time_noon
+            hour < 14 -> R.string.query_time_noon
+            hour < 18 -> R.string.query_time_afternoon
+            hour < 20 -> R.string.query_time_dusk
+            else -> R.string.query_time_evening
         }
-
-        return CommandResult.Success("现在是${timeDesc}${hour}点${minute}分")
+        val timeDesc = context.getString(timeDescResId)
+        return CommandResult.Success(str(R.string.query_time_format, timeDesc, hour, minute))
     }
 
     private fun executeQueryDate(): CommandResult {
@@ -50,25 +52,25 @@ class QueryExecutor {
         val month = calendar.get(Calendar.MONTH) + 1
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        return CommandResult.Success("今天是${year}年${month}月${day}日")
+        return CommandResult.Success(str(R.string.query_date_format, year, month, day))
     }
 
     private fun executeQueryDayOfWeek(): CommandResult {
         val calendar = Calendar.getInstance()
         val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
-        val dayName = when (dayOfWeek) {
-            Calendar.SUNDAY -> "星期日"
-            Calendar.MONDAY -> "星期一"
-            Calendar.TUESDAY -> "星期二"
-            Calendar.WEDNESDAY -> "星期三"
-            Calendar.THURSDAY -> "星期四"
-            Calendar.FRIDAY -> "星期五"
-            Calendar.SATURDAY -> "星期六"
-            else -> "未知"
+        val dayNameResId = when (dayOfWeek) {
+            Calendar.SUNDAY -> R.string.query_day_sunday
+            Calendar.MONDAY -> R.string.query_day_monday
+            Calendar.TUESDAY -> R.string.query_day_tuesday
+            Calendar.WEDNESDAY -> R.string.query_day_wednesday
+            Calendar.THURSDAY -> R.string.query_day_thursday
+            Calendar.FRIDAY -> R.string.query_day_friday
+            Calendar.SATURDAY -> R.string.query_day_saturday
+            else -> R.string.query_day_unknown
         }
-
-        return CommandResult.Success("今天是$dayName")
+        val dayName = context.getString(dayNameResId)
+        return CommandResult.Success(str(R.string.query_today_is, dayName))
     }
 
     // ========== 天气查询 ==========
@@ -79,15 +81,10 @@ class QueryExecutor {
      * 这里使用模拟数据
      */
     private fun executeQueryWeather(params: Map<String, String>): CommandResult {
-        val city = params["city"] ?: "北京"
-
-        // 模拟天气数据
+        val city = params["city"] ?: context.getString(R.string.query_default_city)
         val mockWeather = generateMockWeather(city)
-
         return CommandResult.Success(
-            "${city}今天的天气：${mockWeather.condition}，" +
-                    "温度${mockWeather.tempLow}到${mockWeather.tempHigh}度，" +
-                    mockWeather.suggestion
+            str(R.string.query_weather_format, city, mockWeather.condition, mockWeather.tempLow, mockWeather.tempHigh, mockWeather.suggestion)
         )
     }
 
@@ -95,8 +92,16 @@ class QueryExecutor {
         // 根据城市和日期生成模拟天气（保证每次查询相同城市结果一致）
         val random = Random(city.hashCode().toLong() + getDayOfYear())
 
-        val conditions = listOf("晴", "多云", "阴", "小雨", "阵雨")
-        val condition = conditions[random.nextInt(conditions.size)]
+        val conditionSuggestionPairs = listOf(
+            R.string.query_weather_sunny to R.string.query_weather_suggestion_go,
+            R.string.query_weather_cloudy to R.string.query_weather_suggestion_comfort,
+            R.string.query_weather_overcast to R.string.query_weather_suggestion_umbrella_rain,
+            R.string.query_weather_light_rain to R.string.query_weather_suggestion_umbrella,
+            R.string.query_weather_shower to R.string.query_weather_suggestion_umbrella
+        )
+        val (conditionResId, suggestionResId) = conditionSuggestionPairs[random.nextInt(conditionSuggestionPairs.size)]
+        val condition = context.getString(conditionResId)
+        val suggestion = context.getString(suggestionResId)
 
         // 根据季节设定温度范围
         val calendar = Calendar.getInstance()
@@ -114,14 +119,6 @@ class QueryExecutor {
         val tempLow = baseLow + random.nextInt(5)
         val tempHigh = baseHigh + random.nextInt(5)
 
-        val suggestion = when (condition) {
-            "晴" -> "适合出行"
-            "多云" -> "天气舒适"
-            "阴" -> "可能有雨，建议带伞"
-            "小雨", "阵雨" -> "出门记得带伞"
-            else -> "注意天气变化"
-        }
-
         return WeatherInfo(city, condition, tempLow, tempHigh, suggestion)
     }
 
@@ -137,7 +134,7 @@ class QueryExecutor {
      * 支持：加、减、乘、除
      */
     private fun executeCalculate(params: Map<String, String>): CommandResult {
-        val expression = params["expression"] ?: return CommandResult.Error("请说出要计算的内容")
+        val expression = params["expression"] ?: return CommandResult.Error(str(R.string.query_calc_say_expression))
 
         return try {
             val result = parseAndCalculate(expression)
@@ -145,14 +142,14 @@ class QueryExecutor {
                 val formattedResult = if (result == result.toLong().toDouble()) {
                     result.toLong().toString()
                 } else {
-                    String.format("%.2f", result)
+                    String.format(Locale.getDefault(), "%.2f", result)
                 }
-                CommandResult.Success("计算结果是$formattedResult")
+                CommandResult.Success(str(R.string.query_calc_result, formattedResult))
             } else {
-                CommandResult.Error("无法计算，请说清楚，例如：123加456等于多少")
+                CommandResult.Error(str(R.string.query_calc_unclear))
             }
         } catch (e: Exception) {
-            CommandResult.Error("计算失败：${e.message}")
+            CommandResult.Error(str(R.string.query_calc_failed, e.message ?: ""))
         }
     }
 
@@ -162,7 +159,7 @@ class QueryExecutor {
      */
     private fun parseAndCalculate(expression: String): Double? {
         // 标准化表达式
-        var normalized = expression
+        val normalized = expression
             .replace("加", "+")
             .replace("减", "-")
             .replace("乘", "*")
@@ -175,7 +172,7 @@ class QueryExecutor {
             .replace(" ", "")
 
         // 提取数字和运算符
-        val pattern = """(-?\d+\.?\d*)([\+\-\*/])(-?\d+\.?\d*)""".toRegex()
+        val pattern = """(-?\d+\.?\d*)([+\-*/])(-?\d+\.?\d*)""".toRegex()
         val match = pattern.find(normalized)
 
         if (match != null) {
@@ -193,13 +190,13 @@ class QueryExecutor {
         }
 
         // 尝试更宽松的匹配（比如"一百加二百"）
-        return parseChineseNumbers(expression)
+        return parseChineseNumbers()
     }
 
     /**
      * 解析包含中文数字的表达式
      */
-    private fun parseChineseNumbers(expression: String): Double? {
+    private fun parseChineseNumbers(): Double? {
         // 简化实现，只处理阿拉伯数字
         // 实际项目中可以添加中文数字转换
         return null

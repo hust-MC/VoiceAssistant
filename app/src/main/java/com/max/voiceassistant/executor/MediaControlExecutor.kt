@@ -2,6 +2,7 @@ package com.max.voiceassistant.executor
 
 import android.content.Context
 import android.media.AudioManager
+import com.max.voiceassistant.R
 import com.max.voiceassistant.model.Command
 import com.max.voiceassistant.model.CommandResult
 import com.max.voiceassistant.model.CommandType
@@ -31,7 +32,7 @@ class MediaControlExecutor(private val context: Context) {
             CommandType.VOLUME_DOWN -> executeVolumeDown()
             CommandType.VOLUME_MUTE -> executeMute()
             CommandType.VOLUME_UNMUTE -> executeUnmute()
-            else -> CommandResult.Error("不支持的媒体命令")
+            else -> CommandResult.Error(context.getString(R.string.media_unsupported))
         }
     }
     
@@ -45,45 +46,45 @@ class MediaControlExecutor(private val context: Context) {
         // 实际项目中可以使用MediaController或者与具体播放器App交互
         return try {
             sendMediaKeyEvent(android.view.KeyEvent.KEYCODE_MEDIA_PLAY)
-            CommandResult.Success("正在播放音乐")
+            CommandResult.Success(context.getString(R.string.media_playing))
         } catch (e: Exception) {
-            CommandResult.Error("播放失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.media_play_failed, e.message ?: ""))
         }
     }
     
     private fun executePause(): CommandResult {
         return try {
             sendMediaKeyEvent(android.view.KeyEvent.KEYCODE_MEDIA_PAUSE)
-            CommandResult.Success("音乐已暂停")
+            CommandResult.Success(context.getString(R.string.media_paused))
         } catch (e: Exception) {
-            CommandResult.Error("暂停失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.media_pause_failed, e.message ?: ""))
         }
     }
     
     private fun executeStop(): CommandResult {
         return try {
             sendMediaKeyEvent(android.view.KeyEvent.KEYCODE_MEDIA_STOP)
-            CommandResult.Success("音乐已停止")
+            CommandResult.Success(context.getString(R.string.media_stopped))
         } catch (e: Exception) {
-            CommandResult.Error("停止失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.media_stop_failed, e.message ?: ""))
         }
     }
     
     private fun executeNext(): CommandResult {
         return try {
             sendMediaKeyEvent(android.view.KeyEvent.KEYCODE_MEDIA_NEXT)
-            CommandResult.Success("已切换到下一首")
+            CommandResult.Success(context.getString(R.string.media_next))
         } catch (e: Exception) {
-            CommandResult.Error("切换失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.media_switch_failed, e.message ?: ""))
         }
     }
     
     private fun executePrevious(): CommandResult {
         return try {
             sendMediaKeyEvent(android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS)
-            CommandResult.Success("已切换到上一首")
+            CommandResult.Success(context.getString(R.string.media_previous))
         } catch (e: Exception) {
-            CommandResult.Error("切换失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.media_switch_failed, e.message ?: ""))
         }
     }
     
@@ -93,7 +94,7 @@ class MediaControlExecutor(private val context: Context) {
             val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
             
             if (currentVolume >= maxVolume) {
-                return CommandResult.Success("音量已经是最大了")
+                return CommandResult.Success(context.getString(R.string.media_volume_max))
             }
             
             audioManager.adjustStreamVolume(
@@ -104,9 +105,9 @@ class MediaControlExecutor(private val context: Context) {
             
             val newVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
             val percent = (newVolume * 100 / maxVolume)
-            CommandResult.Success("音量已调高，当前${percent}%")
+            CommandResult.Success(context.getString(R.string.media_volume_up, percent))
         } catch (e: Exception) {
-            CommandResult.Error("调节音量失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.media_volume_failed, e.message ?: ""))
         }
     }
     
@@ -115,7 +116,7 @@ class MediaControlExecutor(private val context: Context) {
             val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
             
             if (currentVolume <= 0) {
-                return CommandResult.Success("音量已经是最小了")
+                return CommandResult.Success(context.getString(R.string.media_volume_min))
             }
             
             audioManager.adjustStreamVolume(
@@ -127,16 +128,16 @@ class MediaControlExecutor(private val context: Context) {
             val newVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
             val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
             val percent = (newVolume * 100 / maxVolume)
-            CommandResult.Success("音量已调低，当前${percent}%")
+            CommandResult.Success(context.getString(R.string.media_volume_down, percent))
         } catch (e: Exception) {
-            CommandResult.Error("调节音量失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.media_volume_failed, e.message ?: ""))
         }
     }
     
     private fun executeMute(): CommandResult {
         return try {
             if (isMuted) {
-                return CommandResult.Success("已经是静音状态了")
+                return CommandResult.Success(context.getString(R.string.media_already_mute))
             }
             
             volumeBeforeMute = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
@@ -146,19 +147,18 @@ class MediaControlExecutor(private val context: Context) {
                 AudioManager.FLAG_SHOW_UI
             )
             isMuted = true
-            CommandResult.Success("已静音")
+            CommandResult.Success(context.getString(R.string.media_muted))
         } catch (e: Exception) {
-            CommandResult.Error("静音失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.media_mute_failed, e.message ?: ""))
         }
     }
     
     private fun executeUnmute(): CommandResult {
         return try {
             if (!isMuted) {
-                return CommandResult.Success("当前不是静音状态")
+                return CommandResult.Success(context.getString(R.string.media_not_mute))
             }
             
-            // 恢复之前的音量，如果之前是0，则设置为中等音量
             val restoreVolume = if (volumeBeforeMute > 0) {
                 volumeBeforeMute
             } else {
@@ -174,9 +174,9 @@ class MediaControlExecutor(private val context: Context) {
             
             val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
             val percent = (restoreVolume * 100 / maxVolume)
-            CommandResult.Success("已取消静音，当前音量${percent}%")
+            CommandResult.Success(context.getString(R.string.media_unmuted, percent))
         } catch (e: Exception) {
-            CommandResult.Error("取消静音失败：${e.message}")
+            CommandResult.Error(context.getString(R.string.media_unmute_failed, e.message ?: ""))
         }
     }
     

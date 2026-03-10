@@ -1,5 +1,7 @@
 package com.max.voiceassistant.executor
 
+import android.content.Context
+import com.max.voiceassistant.R
 import com.max.voiceassistant.data.VehicleStateRepository
 import com.max.voiceassistant.model.*
 
@@ -7,8 +9,10 @@ import com.max.voiceassistant.model.*
  * 车辆控制执行器（Mock实现）
  */
 class VehicleControlExecutor(
+    private val context: Context,
     private val repository: VehicleStateRepository
 ) {
+    private fun str(id: Int, vararg args: Any?) = context.getString(id, *args)
     
     fun execute(command: Command): CommandResult {
         return when (command.type) {
@@ -60,7 +64,7 @@ class VehicleControlExecutor(
             CommandType.ENGINE_START -> executeEngine(true)
             CommandType.ENGINE_STOP -> executeEngine(false)
             
-            else -> CommandResult.Error("暂不支持此功能")
+            else -> CommandResult.Error(str(R.string.vehicle_unsupported))
         }
     }
     
@@ -69,7 +73,7 @@ class VehicleControlExecutor(
     private fun executeACOn(): CommandResult {
         val currentAC = repository.getCurrentState().ac
         if (currentAC.isOn) {
-            return CommandResult.Success("空调已经打开了，当前温度${currentAC.temperature}度")
+            return CommandResult.Success(str(R.string.vehicle_ac_already_on, currentAC.temperature))
         }
         
         repository.updateACState(currentAC.copy(
@@ -78,111 +82,109 @@ class VehicleControlExecutor(
             fanSpeed = 3,
             mode = ACMode.AUTO
         ))
-        return CommandResult.Success("空调已打开，当前温度24度")
+        return CommandResult.Success(str(R.string.vehicle_ac_turned_on))
     }
     
     private fun executeACOff(): CommandResult {
         val currentAC = repository.getCurrentState().ac
         if (!currentAC.isOn) {
-            return CommandResult.Success("空调已经关闭了")
+            return CommandResult.Success(str(R.string.vehicle_ac_already_off))
         }
         
         repository.updateACState(currentAC.copy(isOn = false))
-        return CommandResult.Success("空调已关闭")
+        return CommandResult.Success(str(R.string.vehicle_ac_off))
     }
     
     private fun executeACTempUp(): CommandResult {
         val currentAC = repository.getCurrentState().ac
         if (!currentAC.isOn) {
-            return CommandResult.Error("请先打开空调")
+            return CommandResult.Error(str(R.string.vehicle_ac_turn_on_first))
         }
         
         if (currentAC.temperature >= ACState.MAX_TEMPERATURE) {
-            return CommandResult.Success("温度已经是最高了，${ACState.MAX_TEMPERATURE}度")
+            return CommandResult.Success(str(R.string.vehicle_temp_max, ACState.MAX_TEMPERATURE))
         }
         
         val newTemp = currentAC.temperature + 1
         repository.updateACState(currentAC.copy(temperature = newTemp))
-        return CommandResult.Success("温度已调高至${newTemp}度")
+        return CommandResult.Success(str(R.string.vehicle_temp_up, newTemp))
     }
     
     private fun executeACTempDown(): CommandResult {
         val currentAC = repository.getCurrentState().ac
         if (!currentAC.isOn) {
-            return CommandResult.Error("请先打开空调")
+            return CommandResult.Error(str(R.string.vehicle_ac_turn_on_first))
         }
         
         if (currentAC.temperature <= ACState.MIN_TEMPERATURE) {
-            return CommandResult.Success("温度已经是最低了，${ACState.MIN_TEMPERATURE}度")
+            return CommandResult.Success(str(R.string.vehicle_temp_min, ACState.MIN_TEMPERATURE))
         }
         
         val newTemp = currentAC.temperature - 1
         repository.updateACState(currentAC.copy(temperature = newTemp))
-        return CommandResult.Success("温度已调低至${newTemp}度")
+        return CommandResult.Success(str(R.string.vehicle_temp_down, newTemp))
     }
     
     private fun executeACTempSet(params: Map<String, String>): CommandResult {
         val currentAC = repository.getCurrentState().ac
         
-        val tempStr = params["temperature"] ?: return CommandResult.Error("请指定温度")
-        val temp = tempStr.toIntOrNull() ?: return CommandResult.Error("无法识别温度")
+        val tempStr = params["temperature"] ?: return CommandResult.Error(str(R.string.vehicle_temp_specify))
+        val temp = tempStr.toIntOrNull() ?: return CommandResult.Error(str(R.string.vehicle_temp_invalid))
         
         if (temp < ACState.MIN_TEMPERATURE || temp > ACState.MAX_TEMPERATURE) {
-            return CommandResult.Error("温度只能在${ACState.MIN_TEMPERATURE}到${ACState.MAX_TEMPERATURE}度之间")
+            return CommandResult.Error(str(R.string.vehicle_temp_range, ACState.MIN_TEMPERATURE, ACState.MAX_TEMPERATURE))
         }
         
         if (!currentAC.isOn) {
-            // 自动打开空调
             repository.updateACState(currentAC.copy(isOn = true, temperature = temp))
-            return CommandResult.Success("空调已打开，温度设置为${temp}度")
+            return CommandResult.Success(str(R.string.vehicle_ac_on_set_temp, temp))
         }
         
         repository.updateACState(currentAC.copy(temperature = temp))
-        return CommandResult.Success("温度已设置为${temp}度")
+        return CommandResult.Success(str(R.string.vehicle_temp_set, temp))
     }
     
     private fun executeACFanUp(): CommandResult {
         val currentAC = repository.getCurrentState().ac
         if (!currentAC.isOn) {
-            return CommandResult.Error("请先打开空调")
+            return CommandResult.Error(str(R.string.vehicle_ac_turn_on_first))
         }
         
         if (currentAC.fanSpeed >= ACState.MAX_FAN_SPEED) {
-            return CommandResult.Success("风速已经是最大了，${ACState.MAX_FAN_SPEED}档")
+            return CommandResult.Success(str(R.string.vehicle_fan_max, ACState.MAX_FAN_SPEED))
         }
         
         val newSpeed = currentAC.fanSpeed + 1
         repository.updateACState(currentAC.copy(fanSpeed = newSpeed))
-        return CommandResult.Success("风速已调高至${newSpeed}档")
+        return CommandResult.Success(str(R.string.vehicle_fan_up, newSpeed))
     }
     
     private fun executeACFanDown(): CommandResult {
         val currentAC = repository.getCurrentState().ac
         if (!currentAC.isOn) {
-            return CommandResult.Error("请先打开空调")
+            return CommandResult.Error(str(R.string.vehicle_ac_turn_on_first))
         }
         
         if (currentAC.fanSpeed <= ACState.MIN_FAN_SPEED) {
-            return CommandResult.Success("风速已经是最小了，${ACState.MIN_FAN_SPEED}档")
+            return CommandResult.Success(str(R.string.vehicle_fan_min, ACState.MIN_FAN_SPEED))
         }
         
         val newSpeed = currentAC.fanSpeed - 1
         repository.updateACState(currentAC.copy(fanSpeed = newSpeed))
-        return CommandResult.Success("风速已调低至${newSpeed}档")
+        return CommandResult.Success(str(R.string.vehicle_fan_down, newSpeed))
     }
     
     private fun executeACMode(mode: ACMode): CommandResult {
         val currentAC = repository.getCurrentState().ac
         if (!currentAC.isOn) {
-            return CommandResult.Error("请先打开空调")
+            return CommandResult.Error(str(R.string.vehicle_ac_turn_on_first))
         }
-        
+        val modeName = context.getString(when (mode) { ACMode.AUTO -> R.string.ac_mode_auto; ACMode.COOL -> R.string.ac_mode_cool; ACMode.HEAT -> R.string.ac_mode_heat })
         if (currentAC.mode == mode) {
-            return CommandResult.Success("已经是${mode.displayName}模式了")
+            return CommandResult.Success(str(R.string.vehicle_ac_mode_already, modeName))
         }
-        
         repository.updateACState(currentAC.copy(mode = mode))
-        return CommandResult.Success("已切换到${mode.displayName}模式")
+        return CommandResult.Success(str(R.string.vehicle_ac_mode_switched, modeName))
     }
     
     // ========== 座椅控制 ==========
@@ -191,51 +193,51 @@ class VehicleControlExecutor(
         val currentSeat = repository.getCurrentState().seat
         
         if (currentSeat.position >= SeatState.MAX_POSITION) {
-            return CommandResult.Success("座椅已经是最前了")
+            return CommandResult.Success(str(R.string.vehicle_seat_forward_max))
         }
         
         val newPos = currentSeat.position + 1
         repository.updateSeatState(currentSeat.copy(position = newPos))
-        return CommandResult.Success("座椅已前移")
+        return CommandResult.Success(str(R.string.vehicle_seat_forward))
     }
     
     private fun executeSeatBackward(): CommandResult {
         val currentSeat = repository.getCurrentState().seat
         
         if (currentSeat.position <= SeatState.MIN_POSITION) {
-            return CommandResult.Success("座椅已经是最后了")
+            return CommandResult.Success(str(R.string.vehicle_seat_backward_max))
         }
         
         val newPos = currentSeat.position - 1
         repository.updateSeatState(currentSeat.copy(position = newPos))
-        return CommandResult.Success("座椅已后移")
+        return CommandResult.Success(str(R.string.vehicle_seat_backward))
     }
     
     private fun executeSeatHeat(enable: Boolean): CommandResult {
         val currentSeat = repository.getCurrentState().seat
         
+        val onOff = if (enable) context.getString(R.string.vehicle_on) else context.getString(R.string.vehicle_off)
         if (currentSeat.heating == enable) {
-            return CommandResult.Success("座椅加热已经${if (enable) "打开" else "关闭"}了")
+            return CommandResult.Success(str(R.string.vehicle_seat_heat_already, onOff))
         }
-        
         repository.updateSeatState(currentSeat.copy(heating = enable))
-        return CommandResult.Success("座椅加热已${if (enable) "打开" else "关闭"}")
+        return CommandResult.Success(str(R.string.vehicle_seat_heat, onOff))
     }
     
     private fun executeSeatVentilation(enable: Boolean): CommandResult {
         val currentSeat = repository.getCurrentState().seat
         
+        val onOff = if (enable) context.getString(R.string.vehicle_on) else context.getString(R.string.vehicle_off)
         if (currentSeat.ventilation == enable) {
-            return CommandResult.Success("座椅通风已经${if (enable) "打开" else "关闭"}了")
+            return CommandResult.Success(str(R.string.vehicle_seat_vent_already, onOff))
         }
-        
         repository.updateSeatState(currentSeat.copy(ventilation = enable))
-        return CommandResult.Success("座椅通风已${if (enable) "打开" else "关闭"}")
+        return CommandResult.Success(str(R.string.vehicle_seat_vent, onOff))
     }
     
     private fun executeSeatReset(): CommandResult {
         repository.updateSeatState(SeatState())
-        return CommandResult.Success("座椅已复位")
+        return CommandResult.Success(str(R.string.vehicle_seat_reset))
     }
     
     // ========== 车窗控制 ==========
@@ -244,44 +246,42 @@ class VehicleControlExecutor(
         val currentWindow = repository.getCurrentState().window
         
         val status = when (percent) {
-            WindowState.CLOSED -> "已关闭"
-            WindowState.HALF_OPEN -> "已打开一半"
-            WindowState.FULL_OPEN -> "已打开"
-            else -> "已调整"
+            WindowState.CLOSED -> context.getString(R.string.vehicle_window_closed)
+            WindowState.HALF_OPEN -> context.getString(R.string.vehicle_window_half)
+            WindowState.FULL_OPEN -> context.getString(R.string.vehicle_window_open)
+            else -> context.getString(R.string.vehicle_window_adjusted)
         }
-        
         repository.updateWindowState(currentWindow.copy(
             frontLeft = percent,
             frontRight = percent
         ))
-        return CommandResult.Success("前窗$status")
+        return CommandResult.Success(str(R.string.vehicle_front_window, status))
     }
     
     private fun executeWindowRear(percent: Int): CommandResult {
         val currentWindow = repository.getCurrentState().window
         
         val status = when (percent) {
-            WindowState.CLOSED -> "已关闭"
-            WindowState.FULL_OPEN -> "已打开"
-            else -> "已调整"
+            WindowState.CLOSED -> context.getString(R.string.vehicle_window_closed)
+            WindowState.FULL_OPEN -> context.getString(R.string.vehicle_window_open)
+            else -> context.getString(R.string.vehicle_window_adjusted)
         }
-        
         repository.updateWindowState(currentWindow.copy(
             rearLeft = percent,
             rearRight = percent
         ))
-        return CommandResult.Success("后窗$status")
+        return CommandResult.Success(str(R.string.vehicle_rear_window, status))
     }
     
     private fun executeSunroof(open: Boolean): CommandResult {
         val currentWindow = repository.getCurrentState().window
         
+        val onOff = if (open) context.getString(R.string.vehicle_on) else context.getString(R.string.vehicle_off)
         if (currentWindow.sunroof == open) {
-            return CommandResult.Success("天窗已经${if (open) "打开" else "关闭"}了")
+            return CommandResult.Success(str(R.string.vehicle_sunroof_already, onOff))
         }
-        
         repository.updateWindowState(currentWindow.copy(sunroof = open))
-        return CommandResult.Success("天窗已${if (open) "打开" else "关闭"}")
+        return CommandResult.Success(str(R.string.vehicle_sunroof, onOff))
     }
     
     // ========== 灯光控制 ==========
@@ -289,54 +289,51 @@ class VehicleControlExecutor(
     private fun executeHeadlight(on: Boolean): CommandResult {
         val currentLight = repository.getCurrentState().light
         
+        val onOff = if (on) context.getString(R.string.vehicle_on) else context.getString(R.string.vehicle_off)
         if (currentLight.headlight == on) {
-            return CommandResult.Success("大灯已经${if (on) "打开" else "关闭"}了")
+            return CommandResult.Success(str(R.string.vehicle_headlight_already, onOff))
         }
-        
         repository.updateLightState(currentLight.copy(
             headlight = on,
             headlightMode = if (on) HeadlightMode.ON else HeadlightMode.OFF
         ))
-        return CommandResult.Success("大灯已${if (on) "打开" else "关闭"}")
+        return CommandResult.Success(str(R.string.vehicle_headlight, onOff))
     }
     
     private fun executeHeadlightAuto(): CommandResult {
         val currentLight = repository.getCurrentState().light
         
         if (currentLight.headlightMode == HeadlightMode.AUTO) {
-            return CommandResult.Success("已经是自动大灯模式了")
+            return CommandResult.Success(str(R.string.vehicle_headlight_auto_already))
         }
-        
         repository.updateLightState(currentLight.copy(headlightMode = HeadlightMode.AUTO))
-        return CommandResult.Success("已切换到自动大灯")
+        return CommandResult.Success(str(R.string.vehicle_headlight_auto))
     }
     
     private fun executeAmbientLight(on: Boolean): CommandResult {
         val currentLight = repository.getCurrentState().light
         
+        val onOff = if (on) context.getString(R.string.vehicle_on) else context.getString(R.string.vehicle_off)
         if (currentLight.ambientLight == on) {
-            return CommandResult.Success("氛围灯已经${if (on) "打开" else "关闭"}了")
+            return CommandResult.Success(str(R.string.vehicle_ambient_already, onOff))
         }
-        
         repository.updateLightState(currentLight.copy(ambientLight = on))
-        return CommandResult.Success("氛围灯已${if (on) "打开" else "关闭"}")
+        return CommandResult.Success(str(R.string.vehicle_ambient, onOff))
     }
     
     private fun executeAmbientColor(params: Map<String, String>): CommandResult {
-        val color = params["color"] ?: "蓝色"
+        val color = params["color"] ?: context.getString(R.string.default_color_blue)
         val currentLight = repository.getCurrentState().light
         
         if (!currentLight.ambientLight) {
-            // 自动打开氛围灯
             repository.updateLightState(currentLight.copy(
                 ambientLight = true,
                 ambientColor = color
             ))
-            return CommandResult.Success("氛围灯已打开，颜色设置为$color")
+            return CommandResult.Success(str(R.string.vehicle_ambient_color_set, color))
         }
-        
         repository.updateLightState(currentLight.copy(ambientColor = color))
-        return CommandResult.Success("氛围灯已调成$color")
+        return CommandResult.Success(str(R.string.vehicle_ambient_color, color))
     }
     
     // ========== 车门控制 ==========
@@ -344,23 +341,23 @@ class VehicleControlExecutor(
     private fun executeDoorLock(lock: Boolean): CommandResult {
         val currentDoor = repository.getCurrentState().door
         
+        val lockStr = if (lock) context.getString(R.string.vehicle_locked) else context.getString(R.string.vehicle_unlocked)
         if (currentDoor.isLocked == lock) {
-            return CommandResult.Success("车辆已经${if (lock) "锁定" else "解锁"}了")
+            return CommandResult.Success(str(R.string.vehicle_door_already, lockStr))
         }
-        
         repository.updateDoorState(currentDoor.copy(isLocked = lock))
-        return CommandResult.Success("车辆已${if (lock) "锁定" else "解锁"}")
+        return CommandResult.Success(str(R.string.vehicle_door, lockStr))
     }
     
     private fun executeTrunk(open: Boolean): CommandResult {
         val currentDoor = repository.getCurrentState().door
         
+        val onOff = if (open) context.getString(R.string.vehicle_on) else context.getString(R.string.vehicle_off)
         if (currentDoor.trunkOpen == open) {
-            return CommandResult.Success("后备箱已经${if (open) "打开" else "关闭"}了")
+            return CommandResult.Success(str(R.string.vehicle_trunk_already, onOff))
         }
-        
         repository.updateDoorState(currentDoor.copy(trunkOpen = open))
-        return CommandResult.Success("后备箱已${if (open) "打开" else "关闭"}")
+        return CommandResult.Success(str(R.string.vehicle_trunk, onOff))
     }
     
     // ========== 引擎控制 ==========
@@ -368,12 +365,12 @@ class VehicleControlExecutor(
     private fun executeEngine(start: Boolean): CommandResult {
         val currentEngine = repository.getCurrentState().engine
         
+        val stateStr = if (start) context.getString(R.string.vehicle_started) else context.getString(R.string.vehicle_stopped)
         if (currentEngine.isRunning == start) {
-            return CommandResult.Success("车辆已经${if (start) "启动" else "熄火"}了")
+            return CommandResult.Success(str(R.string.vehicle_engine_already, stateStr))
         }
-        
         repository.updateEngineState(EngineState(isRunning = start))
-        return CommandResult.Success("车辆已${if (start) "启动" else "熄火"}")
+        return CommandResult.Success(str(R.string.vehicle_engine, stateStr))
     }
 }
 

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Car Voice Assistant</string>
+
+    <!-- Main -->
+    <string name="main_title">Car Voice Assistant</string>
+    <string name="main_vehicle_status">Vehicle Status</string>
+    <string name="main_ac_off">AC: Off</string>
+    <string name="main_ac_on">AC: On %1$s</string>
+    <string name="main_temperature_label">Temp</string>
+    <string name="main_door_locked">Locked</string>
+    <string name="main_door_unlocked">Unlocked</string>
+    <string name="main_engine_running">Running</string>
+    <string name="main_engine_off">Off</string>
+    <string name="main_recognition_tap_to_speak">Tap mic to speak</string>
+    <string name="main_recognition_listening">Listening…</string>
+    <string name="main_recognition_recognizing">Recognizing…</string>
+    <string name="main_recognition_processing">Processing…</string>
+    <string name="main_recognition_error">Recognition failed, tap to retry</string>
+    <string name="main_quick_play_music">Play music</string>
+    <string name="main_quick_open_ac">Turn on AC</string>
+    <string name="main_quick_what_time">What time</string>
+    <string name="main_feedback_placeholder">Temperature set to 25°C</string>
+
+    <!-- Permission -->
+    <string name="permission_need_record">Recording permission is required for voice features</string>
+    <string name="permission_record_title">Recording permission needed</string>
+    <string name="permission_record_message">The voice assistant needs recording permission to recognize your voice commands.</string>
+    <string name="permission_grant">Grant</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_ok">OK</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_voice_mode">Voice mode: %1$s</string>
+    <string name="settings_clear_history">Clear chat history</string>
+    <string name="settings_about">About</string>
+    <string name="settings_history_cleared">Chat history cleared</string>
+    <string name="settings_mode_mock">Mock mode</string>
+    <string name="settings_mode_real">Real mode</string>
+    <string name="settings_mode_mock_label">Mock mode</string>
+    <string name="settings_mode_real_label">Real mode (Baidu SDK)</string>
+    <string name="settings_select_mode_title">Select voice mode</string>
+    <string name="settings_switched_mode">Switched to %1$s. Restart app to apply.</string>
+
+    <!-- About -->
+    <string name="about_title">About</string>
+    <string name="about_message">Car Voice Assistant Demo\n\nCurrent mode: %1$s\n\nFeatures:\n• Speech recognition (ASR)\n• Text-to-speech (TTS)\n• Media control\n• Vehicle control (Mock)\n• System control\n• Info queries\n\nTip: Use Baidu SDK for real speech recognition.</string>
+
+    <!-- Mode info -->
+    <string name="mode_info_mock">Mock mode. Tap mic then use quick commands to test.</string>
+
+    <!-- AC mode -->
+    <string name="ac_mode_auto">Auto</string>
+    <string name="ac_mode_cool">Cool</string>
+    <string name="ac_mode_heat">Heat</string>
+
+    <!-- Command result - common -->
+    <string name="cmd_unknown">Sorry, I didn\'t catch that. Try: turn on AC, play music, what time is it.</string>
+    <string name="cmd_recognition_failed">Recognition failed: %1$s</string>
+
+    <!-- Media -->
+    <string name="media_unsupported">Unsupported media command</string>
+    <string name="media_playing">Playing music</string>
+    <string name="media_play_failed">Play failed: %1$s</string>
+    <string name="media_paused">Music paused</string>
+    <string name="media_pause_failed">Pause failed: %1$s</string>
+    <string name="media_stopped">Music stopped</string>
+    <string name="media_stop_failed">Stop failed: %1$s</string>
+    <string name="media_next">Next track</string>
+    <string name="media_previous">Previous track</string>
+    <string name="media_switch_failed">Switch failed: %1$s</string>
+    <string name="media_volume_max">Volume is already at max</string>
+    <string name="media_volume_up">Volume up, now %1$d%%</string>
+    <string name="media_volume_min">Volume is already at min</string>
+    <string name="media_volume_down">Volume down, now %1$d%%</string>
+    <string name="media_volume_failed">Volume change failed: %1$s</string>
+    <string name="media_already_mute">Already muted</string>
+    <string name="media_muted">Muted</string>
+    <string name="media_mute_failed">Mute failed: %1$s</string>
+    <string name="media_not_mute">Not muted</string>
+    <string name="media_unmuted">Unmuted, volume %1$d%%</string>
+    <string name="media_unmute_failed">Unmute failed: %1$s</string>
+
+    <!-- System -->
+    <string name="system_unsupported">Unsupported system command</string>
+    <string name="system_brightness_max">Brightness is already at max</string>
+    <string name="system_brightness_up">Brightness up, now %1$d%%</string>
+    <string name="system_brightness_min">Brightness is already at min</string>
+    <string name="system_brightness_down">Brightness down, now %1$d%%</string>
+    <string name="system_brightness_failed">Brightness change failed: %1$s</string>
+    <string name="system_grant_in_panel">Please grant permission in the panel, then try again</string>
+    <string name="system_cannot_open_panel">Cannot open settings: %1$s</string>
+    <string name="system_wifi_unavailable">Cannot access WiFi service</string>
+    <string name="system_wifi_already_on">WiFi is already on</string>
+    <string name="system_wifi_open_panel">Please turn on WiFi in the panel</string>
+    <string name="system_wifi_on">WiFi is on</string>
+    <string name="system_wifi_on_failed">Failed to turn on WiFi: %1$s</string>
+    <string name="system_wifi_already_off">WiFi is already off</string>
+    <string name="system_wifi_off_panel">Please turn off WiFi in the panel</string>
+    <string name="system_wifi_off">WiFi is off</string>
+    <string name="system_wifi_off_failed">Failed to turn off WiFi: %1$s</string>
+    <string name="system_wifi_unknown_network">Unknown network</string>
+    <string name="system_wifi_not_connected">WiFi is on but not connected</string>
+    <string name="system_wifi_connected">Connected to %1$s</string>
+    <string name="system_wifi_status_failed">Failed to get WiFi status: %1$s</string>
+    <string name="system_bluetooth_permission">Bluetooth permission required</string>
+    <string name="system_bluetooth_permission_query">Bluetooth permission required to check status</string>
+    <string name="system_bluetooth_permission_short">Bluetooth permission required</string>
+    <string name="system_bluetooth_unsupported">Bluetooth not supported</string>
+    <string name="system_bluetooth_already_on">Bluetooth is already on</string>
+    <string name="system_bluetooth_confirm_on">Please confirm to enable Bluetooth in the dialog</string>
+    <string name="system_bluetooth_on_failed">Failed to turn on Bluetooth: %1$s</string>
+    <string name="system_bluetooth_already_off">Bluetooth is already off</string>
+    <string name="system_bluetooth_off_in_settings">Please turn off Bluetooth in Settings</string>
+    <string name="system_bluetooth_off">Bluetooth is off</string>
+    <string name="system_bluetooth_off_failed">Failed to turn off Bluetooth: %1$s</string>
+    <string name="system_bluetooth_on">Bluetooth is on</string>
+    <string name="system_bluetooth_status_failed">Failed to get Bluetooth status: %1$s</string>
+    <string name="system_settings_opened">Settings opened</string>
+    <string name="system_settings_open_failed">Failed to open settings: %1$s</string>
+
+    <!-- Vehicle -->
+    <string name="vehicle_unsupported">Not supported yet</string>
+    <string name="vehicle_ac_already_on">AC is already on, temperature %1$d°C</string>
+    <string name="vehicle_ac_turned_on">AC is on, temperature 24°C</string>
+    <string name="vehicle_ac_already_off">AC is already off</string>
+    <string name="vehicle_ac_off">AC is off</string>
+    <string name="vehicle_ac_turn_on_first">Please turn on AC first</string>
+    <string name="vehicle_temp_max">Temperature already at max, %1$d°C</string>
+    <string name="vehicle_temp_up">Temperature set to %1$d°C</string>
+    <string name="vehicle_temp_min">Temperature already at min, %1$d°C</string>
+    <string name="vehicle_temp_down">Temperature set to %1$d°C</string>
+    <string name="vehicle_temp_specify">Please specify temperature</string>
+    <string name="vehicle_temp_invalid">Invalid temperature</string>
+    <string name="vehicle_temp_range">Temperature must be between %1$d and %2$d°C</string>
+    <string name="vehicle_ac_on_set_temp">AC is on, temperature set to %1$d°C</string>
+    <string name="vehicle_temp_set">Temperature set to %1$d°C</string>
+    <string name="vehicle_fan_max">Fan already at max, level %1$d</string>
+    <string name="vehicle_fan_up">Fan set to level %1$d</string>
+    <string name="vehicle_fan_min">Fan already at min, level %1$d</string>
+    <string name="vehicle_fan_down">Fan set to level %1$d</string>
+    <string name="vehicle_ac_mode_already">Already in %1$s mode</string>
+    <string name="vehicle_ac_mode_switched">Switched to %1$s mode</string>
+    <string name="vehicle_seat_forward_max">Seat is already at front</string>
+    <string name="vehicle_seat_forward">Seat moved forward</string>
+    <string name="vehicle_seat_backward_max">Seat is already at rear</string>
+    <string name="vehicle_seat_backward">Seat moved backward</string>
+    <string name="vehicle_seat_heat_already">Seat heating is already %1$s</string>
+    <string name="vehicle_seat_heat">Seat heating %1$s</string>
+    <string name="vehicle_seat_vent_already">Seat ventilation is already %1$s</string>
+    <string name="vehicle_seat_vent">Seat ventilation %1$s</string>
+    <string name="vehicle_seat_reset">Seat reset</string>
+    <string name="vehicle_on">on</string>
+    <string name="vehicle_off">off</string>
+    <string name="vehicle_window_closed">Closed</string>
+    <string name="vehicle_window_half">Half open</string>
+    <string name="vehicle_window_open">Open</string>
+    <string name="vehicle_window_adjusted">Adjusted</string>
+    <string name="vehicle_front_window">Front window %1$s</string>
+    <string name="vehicle_rear_window">Rear window %1$s</string>
+    <string name="vehicle_sunroof_already">Sunroof is already %1$s</string>
+    <string name="vehicle_sunroof">Sunroof %1$s</string>
+    <string name="vehicle_headlight_already">Headlight is already %1$s</string>
+    <string name="vehicle_headlight">Headlight %1$s</string>
+    <string name="vehicle_headlight_auto_already">Already in auto headlight mode</string>
+    <string name="vehicle_headlight_auto">Switched to auto headlight</string>
+    <string name="vehicle_ambient_already">Ambient light is already %1$s</string>
+    <string name="vehicle_ambient">Ambient light %1$s</string>
+    <string name="vehicle_ambient_color_set">Ambient light on, color set to %1$s</string>
+    <string name="vehicle_ambient_color">Ambient light color set to %1$s</string>
+    <string name="vehicle_locked">locked</string>
+    <string name="vehicle_unlocked">unlocked</string>
+    <string name="vehicle_door_already">Vehicle is already %1$s</string>
+    <string name="vehicle_door">Vehicle %1$s</string>
+    <string name="vehicle_trunk_already">Trunk is already %1$s</string>
+    <string name="vehicle_trunk">Trunk %1$s</string>
+    <string name="vehicle_started">started</string>
+    <string name="vehicle_stopped">off</string>
+    <string name="vehicle_engine_already">Vehicle is already %1$s</string>
+    <string name="vehicle_engine">Vehicle %1$s</string>
+
+    <!-- Query -->
+    <string name="query_unsupported">Unsupported query</string>
+    <string name="query_time_format">The time is %1$s %2$d:%3$02d</string>
+    <string name="query_time_early_morning">early morning</string>
+    <string name="query_time_morning">morning</string>
+    <string name="query_time_forenoon">forenoon</string>
+    <string name="query_time_noon">noon</string>
+    <string name="query_time_afternoon">afternoon</string>
+    <string name="query_time_dusk">dusk</string>
+    <string name="query_time_evening">evening</string>
+    <string name="query_date_format">Today is %2$d/%3$d/%1$d</string>
+    <string name="query_day_sunday">Sunday</string>
+    <string name="query_day_monday">Monday</string>
+    <string name="query_day_tuesday">Tuesday</string>
+    <string name="query_day_wednesday">Wednesday</string>
+    <string name="query_day_thursday">Thursday</string>
+    <string name="query_day_friday">Friday</string>
+    <string name="query_day_saturday">Saturday</string>
+    <string name="query_day_unknown">Unknown</string>
+    <string name="query_today_is">Today is %1$s</string>
+    <string name="query_weather_format">%1$s weather: %2$s, %3$d–%4$d°C, %5$s</string>
+    <string name="query_weather_sunny">Sunny</string>
+    <string name="query_weather_cloudy">Cloudy</string>
+    <string name="query_weather_overcast">Overcast</string>
+    <string name="query_weather_light_rain">Light rain</string>
+    <string name="query_weather_shower">Shower</string>
+    <string name="query_weather_suggestion_go">Good to go out</string>
+    <string name="query_weather_suggestion_comfort">Comfortable</string>
+    <string name="query_weather_suggestion_umbrella_rain">May rain, bring an umbrella</string>
+    <string name="query_weather_suggestion_umbrella">Bring an umbrella</string>
+    <string name="query_weather_suggestion_change">Watch the weather</string>
+    <string name="query_calc_say_expression">Please say the expression to calculate</string>
+    <string name="query_calc_result">Result is %1$s</string>
+    <string name="query_calc_unclear">Cannot calculate. Try: 123 plus 456</string>
+    <string name="query_calc_failed">Calculation failed: %1$s</string>
+    <string name="query_default_city">Beijing</string>
+
+    <!-- Speech -->
+    <string name="speech_not_initialized">Voice not initialized</string>
+    <string name="speech_parse_error">Failed to parse error message</string>
+    <string name="speech_asr_not_initialized">Speech recognition not initialized</string>
+    <string name="speech_tts_error">TTS playback error</string>
+    <string name="error_unknown">Unknown error</string>
+    <string name="default_color_blue">blue</string>
+</resources>

@@ -2,6 +2,7 @@ package com.max.voiceassistant.speech
 
 import android.content.Context
 import android.util.Log
+import com.max.voiceassistant.R
 import com.max.voiceassistant.data.AppSettings
 
 /**
@@ -234,7 +235,7 @@ class VoiceAssistantManager(private val context: Context) {
     fun startListening() {
         if (!isInitialized) {
             Log.e(TAG, "Not initialized")
-            recognitionCallback?.onError(-1, "语音功能未初始化")
+            recognitionCallback?.onError(-1, context.getString(R.string.speech_not_initialized))
             return
         }
         

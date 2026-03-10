@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.max.voiceassistant.R
 import com.max.voiceassistant.data.DialogRepository
 import com.max.voiceassistant.data.VehicleStateRepository
 import com.max.voiceassistant.executor.CommandExecutor
@@ -136,7 +137,7 @@ class MainViewModel(
             
             override fun onError(errorCode: Int, errorMessage: String) {
                 _recognitionState.value = RecognitionState.ERROR
-                _lastCommandResult.value = CommandResult.Error("识别失败: $errorMessage")
+                _lastCommandResult.value = CommandResult.Error(context.getString(R.string.cmd_recognition_failed, errorMessage))
                 
                 // 3秒后恢复
                 viewModelScope.launch {

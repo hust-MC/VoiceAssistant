@@ -5,6 +5,7 @@ import android.util.Log
 import com.baidu.speech.EventListener
 import com.baidu.speech.EventManager
 import com.baidu.speech.EventManagerFactory
+import com.max.voiceassistant.R
 import com.baidu.speech.asr.SpeechConstant
 import org.json.JSONObject
 
@@ -143,10 +144,10 @@ class SpeechRecognizerManager(private val context: Context) {
                 try {
                     val json = JSONObject(params)
                     val errorCode = json.optInt("error", -1)
-                    val errorMessage = json.optString("desc", "未知错误")
+                    val errorMessage = json.optString("desc", context.getString(R.string.error_unknown))
                     listener?.onError(errorCode, errorMessage)
                 } catch (e: Exception) {
-                    listener?.onError(-1, "解析错误信息失败")
+                    listener?.onError(-1, context.getString(R.string.speech_parse_error))
                 }
             }
         }
@@ -185,7 +186,7 @@ class SpeechRecognizerManager(private val context: Context) {
     fun startListening() {
         if (!isInitialized) {
             Log.e(TAG, "Not initialized, call init() first")
-            listener?.onError(-1, "语音识别未初始化")
+            listener?.onError(-1, context.getString(R.string.speech_asr_not_initialized))
             return
         }
         

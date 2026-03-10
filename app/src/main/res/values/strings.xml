@@ -1,3 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">车载语音助手</string>
+
+    <!-- 主界面 / Main -->
+    <string name="main_title">车载语音助手</string>
+    <string name="main_vehicle_status">车辆状态</string>
+    <string name="main_ac_off">空调：关</string>
+    <string name="main_ac_on">空调：开 %1$s</string>
+    <string name="main_temperature_label">温度</string>
+    <string name="main_door_locked">已锁定</string>
+    <string name="main_door_unlocked">未锁定</string>
+    <string name="main_engine_running">运行中</string>
+    <string name="main_engine_off">熄火</string>
+    <string name="main_recognition_tap_to_speak">点击麦克风开始说话</string>
+    <string name="main_recognition_listening">正在聆听…</string>
+    <string name="main_recognition_recognizing">识别中…</string>
+    <string name="main_recognition_processing">处理中…</string>
+    <string name="main_recognition_error">识别失败，点击重试</string>
+    <string name="main_quick_play_music">播放音乐</string>
+    <string name="main_quick_open_ac">打开空调</string>
+    <string name="main_quick_what_time">几点了</string>
+    <string name="main_feedback_placeholder">温度已调高至25度</string>
+
+    <!-- 权限 / Permission -->
+    <string name="permission_need_record">需要录音权限才能使用语音功能</string>
+    <string name="permission_record_title">需要录音权限</string>
+    <string name="permission_record_message">语音助手需要录音权限才能识别您的语音指令</string>
+    <string name="permission_grant">授权</string>
+    <string name="common_cancel">取消</string>
+    <string name="common_ok">确定</string>
+
+    <!-- 设置 / Settings -->
+    <string name="settings_title">设置</string>
+    <string name="settings_voice_mode">语音模式：%1$s</string>
+    <string name="settings_clear_history">清空对话历史</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_history_cleared">对话历史已清空</string>
+    <string name="settings_mode_mock">模拟模式</string>
+    <string name="settings_mode_real">真实模式</string>
+    <string name="settings_mode_mock_label">模拟模式（Mock）</string>
+    <string name="settings_mode_real_label">真实模式（百度SDK）</string>
+    <string name="settings_select_mode_title">选择语音模式</string>
+    <string name="settings_switched_mode">已切换到%1$s，重启应用后生效</string>
+
+    <!-- 关于 / About -->
+    <string name="about_title">关于</string>
+    <string name="about_message">车载语音助手 Demo\n\n当前运行模式：%1$s\n\n功能：\n• 语音识别（ASR）\n• 语音合成（TTS）\n• 媒体控制\n• 车辆控制（Mock）\n• 系统控制\n• 信息查询\n\n提示：集成百度SDK后可使用真实语音识别</string>
+
+    <!-- 模式提示 / Mode info -->
+    <string name="mode_info_mock">当前为模拟模式\n点击麦克风后点击快捷命令进行测试</string>
+
+    <!-- 空调模式 / AC mode (for UI display) -->
+    <string name="ac_mode_auto">自动</string>
+    <string name="ac_mode_cool">制冷</string>
+    <string name="ac_mode_heat">制热</string>
+
+    <!-- 命令执行结果 - 通用 / Command result - common -->
+    <string name="cmd_unknown">抱歉，我没听清楚。你可以说：打开空调、播放音乐、现在几点等</string>
+    <string name="cmd_recognition_failed">识别失败: %1$s</string>
+
+    <!-- 媒体 / Media -->
+    <string name="media_unsupported">不支持的媒体命令</string>
+    <string name="media_playing">正在播放音乐</string>
+    <string name="media_play_failed">播放失败：%1$s</string>
+    <string name="media_paused">音乐已暂停</string>
+    <string name="media_pause_failed">暂停失败：%1$s</string>
+    <string name="media_stopped">音乐已停止</string>
+    <string name="media_stop_failed">停止失败：%1$s</string>
+    <string name="media_next">已切换到下一首</string>
+    <string name="media_previous">已切换到上一首</string>
+    <string name="media_switch_failed">切换失败：%1$s</string>
+    <string name="media_volume_max">音量已经是最大了</string>
+    <string name="media_volume_up">音量已调高，当前%1$d%%</string>
+    <string name="media_volume_min">音量已经是最小了</string>
+    <string name="media_volume_down">音量已调低，当前%1$d%%</string>
+    <string name="media_volume_failed">调节音量失败：%1$s</string>
+    <string name="media_already_mute">已经是静音状态了</string>
+    <string name="media_muted">已静音</string>
+    <string name="media_mute_failed">静音失败：%1$s</string>
+    <string name="media_not_mute">当前不是静音状态</string>
+    <string name="media_unmuted">已取消静音，当前音量%1$d%%</string>
+    <string name="media_unmute_failed">取消静音失败：%1$s</string>
+
+    <!-- 系统 / System -->
+    <string name="system_unsupported">不支持的系统命令</string>
+    <string name="system_brightness_max">亮度已经是最高了</string>
+    <string name="system_brightness_up">亮度已调高，当前%1$d%%</string>
+    <string name="system_brightness_min">亮度已经是最低了</string>
+    <string name="system_brightness_down">亮度已调低，当前%1$d%%</string>
+    <string name="system_brightness_failed">调节亮度失败：%1$s</string>
+    <string name="system_grant_in_panel">请在弹出的页面中授权，然后再试一次</string>
+    <string name="system_cannot_open_panel">无法打开授权页面：%1$s</string>
+    <string name="system_wifi_unavailable">无法访问WiFi服务</string>
+    <string name="system_wifi_already_on">WiFi已经是打开状态</string>
+    <string name="system_wifi_open_panel">请在弹出的面板中打开WiFi</string>
+    <string name="system_wifi_on">WiFi已打开</string>
+    <string name="system_wifi_on_failed">打开WiFi失败：%1$s</string>
+    <string name="system_wifi_already_off">WiFi已经是关闭状态</string>
+    <string name="system_wifi_off_panel">请在弹出的面板中关闭WiFi</string>
+    <string name="system_wifi_off">WiFi已关闭</string>
+    <string name="system_wifi_off_failed">关闭WiFi失败：%1$s</string>
+    <string name="system_wifi_unknown_network">未知网络</string>
+    <string name="system_wifi_not_connected">WiFi已打开，但未连接网络</string>
+    <string name="system_wifi_connected">WiFi已连接到：%1$s</string>
+    <string name="system_wifi_status_failed">获取WiFi状态失败：%1$s</string>
+    <string name="system_bluetooth_permission">需要蓝牙权限才能控制蓝牙</string>
+    <string name="system_bluetooth_permission_query">需要蓝牙权限才能查询状态</string>
+    <string name="system_bluetooth_permission_short">需要蓝牙权限</string>
+    <string name="system_bluetooth_unsupported">设备不支持蓝牙</string>
+    <string name="system_bluetooth_already_on">蓝牙已经是打开状态</string>
+    <string name="system_bluetooth_confirm_on">请在弹出的对话框中确认打开蓝牙</string>
+    <string name="system_bluetooth_on_failed">打开蓝牙失败：%1$s</string>
+    <string name="system_bluetooth_already_off">蓝牙已经是关闭状态</string>
+    <string name="system_bluetooth_off_in_settings">请在设置中关闭蓝牙</string>
+    <string name="system_bluetooth_off">蓝牙已关闭</string>
+    <string name="system_bluetooth_off_failed">关闭蓝牙失败：%1$s</string>
+    <string name="system_bluetooth_on">蓝牙已打开</string>
+    <string name="system_bluetooth_status_failed">获取蓝牙状态失败：%1$s</string>
+    <string name="system_settings_opened">已打开设置</string>
+    <string name="system_settings_open_failed">打开设置失败：%1$s</string>
+
+    <!-- 车辆控制 / Vehicle -->
+    <string name="vehicle_unsupported">暂不支持此功能</string>
+    <string name="vehicle_ac_already_on">空调已经打开了，当前温度%1$d度</string>
+    <string name="vehicle_ac_turned_on">空调已打开，当前温度24度</string>
+    <string name="vehicle_ac_already_off">空调已经关闭了</string>
+    <string name="vehicle_ac_off">空调已关闭</string>
+    <string name="vehicle_ac_turn_on_first">请先打开空调</string>
+    <string name="vehicle_temp_max">温度已经是最高了，%1$d度</string>
+    <string name="vehicle_temp_up">温度已调高至%1$d度</string>
+    <string name="vehicle_temp_min">温度已经是最低了，%1$d度</string>
+    <string name="vehicle_temp_down">温度已调低至%1$d度</string>
+    <string name="vehicle_temp_specify">请指定温度</string>
+    <string name="vehicle_temp_invalid">无法识别温度</string>
+    <string name="vehicle_temp_range">温度只能在%1$d到%2$d度之间</string>
+    <string name="vehicle_ac_on_set_temp">空调已打开，温度设置为%1$d度</string>
+    <string name="vehicle_temp_set">温度已设置为%1$d度</string>
+    <string name="vehicle_fan_max">风速已经是最大了，%1$d档</string>
+    <string name="vehicle_fan_up">风速已调高至%1$d档</string>
+    <string name="vehicle_fan_min">风速已经是最小了，%1$d档</string>
+    <string name="vehicle_fan_down">风速已调低至%1$d档</string>
+    <string name="vehicle_ac_mode_already">已经是%1$s模式了</string>
+    <string name="vehicle_ac_mode_switched">已切换到%1$s模式</string>
+    <string name="vehicle_seat_forward_max">座椅已经是最前了</string>
+    <string name="vehicle_seat_forward">座椅已前移</string>
+    <string name="vehicle_seat_backward_max">座椅已经是最后了</string>
+    <string name="vehicle_seat_backward">座椅已后移</string>
+    <string name="vehicle_seat_heat_already">座椅加热已经%1$s了</string>
+    <string name="vehicle_seat_heat">座椅加热已%1$s</string>
+    <string name="vehicle_seat_vent_already">座椅通风已经%1$s了</string>
+    <string name="vehicle_seat_vent">座椅通风已%1$s</string>
+    <string name="vehicle_seat_reset">座椅已复位</string>
+    <string name="vehicle_on">打开</string>
+    <string name="vehicle_off">关闭</string>
+    <string name="vehicle_window_closed">已关闭</string>
+    <string name="vehicle_window_half">已打开一半</string>
+    <string name="vehicle_window_open">已打开</string>
+    <string name="vehicle_window_adjusted">已调整</string>
+    <string name="vehicle_front_window">前窗%1$s</string>
+    <string name="vehicle_rear_window">后窗%1$s</string>
+    <string name="vehicle_sunroof_already">天窗已经%1$s了</string>
+    <string name="vehicle_sunroof">天窗已%1$s</string>
+    <string name="vehicle_headlight_already">大灯已经%1$s了</string>
+    <string name="vehicle_headlight">大灯已%1$s</string>
+    <string name="vehicle_headlight_auto_already">已经是自动大灯模式了</string>
+    <string name="vehicle_headlight_auto">已切换到自动大灯</string>
+    <string name="vehicle_ambient_already">氛围灯已经%1$s了</string>
+    <string name="vehicle_ambient">氛围灯已%1$s</string>
+    <string name="vehicle_ambient_color_set">氛围灯已打开，颜色设置为%1$s</string>
+    <string name="vehicle_ambient_color">氛围灯已调成%1$s</string>
+    <string name="vehicle_locked">锁定</string>
+    <string name="vehicle_unlocked">解锁</string>
+    <string name="vehicle_door_already">车辆已经%1$s了</string>
+    <string name="vehicle_door">车辆已%1$s</string>
+    <string name="vehicle_trunk_already">后备箱已经%1$s了</string>
+    <string name="vehicle_trunk">后备箱已%1$s</string>
+    <string name="vehicle_started">启动</string>
+    <string name="vehicle_stopped">熄火</string>
+    <string name="vehicle_engine_already">车辆已经%1$s了</string>
+    <string name="vehicle_engine">车辆已%1$s</string>
+
+    <!-- 查询 / Query -->
+    <string name="query_unsupported">不支持的查询命令</string>
+    <string name="query_time_format">现在是%1$s%2$d点%3$d分</string>
+    <string name="query_time_early_morning">凌晨</string>
+    <string name="query_time_morning">早上</string>
+    <string name="query_time_forenoon">上午</string>
+    <string name="query_time_noon">中午</string>
+    <string name="query_time_afternoon">下午</string>
+    <string name="query_time_dusk">傍晚</string>
+    <string name="query_time_evening">晚上</string>
+    <string name="query_date_format">今天是%1$d年%2$d月%3$d日</string>
+    <string name="query_day_sunday">星期日</string>
+    <string name="query_day_monday">星期一</string>
+    <string name="query_day_tuesday">星期二</string>
+    <string name="query_day_wednesday">星期三</string>
+    <string name="query_day_thursday">星期四</string>
+    <string name="query_day_friday">星期五</string>
+    <string name="query_day_saturday">星期六</string>
+    <string name="query_day_unknown">未知</string>
+    <string name="query_today_is">今天是%1$s</string>
+    <string name="query_weather_format">%1$s今天的天气：%2$s，温度%3$d到%4$d度，%5$s</string>
+    <string name="query_weather_sunny">晴</string>
+    <string name="query_weather_cloudy">多云</string>
+    <string name="query_weather_overcast">阴</string>
+    <string name="query_weather_light_rain">小雨</string>
+    <string name="query_weather_shower">阵雨</string>
+    <string name="query_weather_suggestion_go">适合出行</string>
+    <string name="query_weather_suggestion_comfort">天气舒适</string>
+    <string name="query_weather_suggestion_umbrella_rain">可能有雨，建议带伞</string>
+    <string name="query_weather_suggestion_umbrella">出门记得带伞</string>
+    <string name="query_weather_suggestion_change">注意天气变化</string>
+    <string name="query_calc_say_expression">请说出要计算的内容</string>
+    <string name="query_calc_result">计算结果是%1$s</string>
+    <string name="query_calc_unclear">无法计算，请说清楚，例如：123加456等于多少</string>
+    <string name="query_calc_failed">计算失败：%1$s</string>
+    <string name="query_default_city">北京</string>
+
+    <!-- 语音 / Speech -->
+    <string name="speech_not_initialized">语音功能未初始化</string>
+    <string name="speech_parse_error">解析错误信息失败</string>
+    <string name="speech_asr_not_initialized">语音识别未初始化</string>
+    <string name="speech_tts_error">TTS播放错误</string>
+    <string name="error_unknown">未知错误</string>
+    <string name="default_color_blue">蓝色</string>
 </resources>

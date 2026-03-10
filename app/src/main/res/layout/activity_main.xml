@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_weight="1"
-            android:text="车载语音助手"
+            android:text="@string/main_title"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -75,7 +75,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="车辆状态"
+                android:text="@string/main_vehicle_status"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -106,7 +106,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="空调：关"
+                        android:text="@string/main_ac_off"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -131,7 +131,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="温度"
+                        android:text="@string/main_temperature_label"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -156,7 +156,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="已锁定"
+                        android:text="@string/main_door_locked"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -181,7 +181,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="熄火"
+                        android:text="@string/main_engine_off"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -213,7 +213,7 @@
                 android:id="@+id/tvRecognitionStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="点击麦克风开始说话"
+                android:text="@string/main_recognition_tap_to_speak"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
 
@@ -252,7 +252,7 @@
                     android:id="@+id/chipPlayMusic"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="播放音乐"
+                    android:text="@string/main_quick_play_music"
                     android:textColor="@color/white"
                     app:chipBackgroundColor="@color/chip_background" />
 
@@ -261,7 +261,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="打开空调"
+                    android:text="@string/main_quick_open_ac"
                     android:textColor="@color/white"
                     app:chipBackgroundColor="@color/chip_background" />
 
@@ -270,7 +270,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="几点了"
+                    android:text="@string/main_quick_what_time"
                     android:textColor="@color/white"
                     app:chipBackgroundColor="@color/chip_background" />
             </LinearLayout>
@@ -309,7 +309,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="温度已调高至25度"
+                android:text="@string/main_feedback_placeholder"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
         </LinearLayout>
